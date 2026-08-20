@@ -18,6 +18,7 @@ import {
 import toast from 'react-hot-toast';
 import { useSavedJobsContext } from '../context/SavedJobsContext';
 import Button from '../components/Button';
+import Dropdown from '../components/Dropdown';
 import JobCard from '../components/JobCard';
 import EmptyState from '../components/EmptyState';
 import jobs from '../data/jobs';
@@ -30,6 +31,7 @@ export default function JobDetails() {
   const [applicantName, setApplicantName] = useState('');
   const [applicantEmail, setApplicantEmail] = useState('');
   const [applicantResume, setApplicantResume] = useState('');
+  const [experienceLevel, setExperienceLevel] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Find job in dataset
@@ -385,6 +387,23 @@ export default function JobDetails() {
                   onChange={(e) => setApplicantResume(e.target.value)}
                   placeholder="https://github.com/yourhandle"
                   className="w-full px-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700 text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div>
+                <Dropdown
+                  label="Experience Level"
+                  options={[
+                    'Fresher / Entry-Level (0-1 Year)',
+                    'Junior to Mid-Level (1-3 Years)',
+                    'Senior Engineer (3-5+ Years)',
+                    'Lead / Staff (6+ Years)'
+                  ]}
+                  value={experienceLevel}
+                  onChange={setExperienceLevel}
+                  allLabel="Select Experience Level"
+                  placeholder="Select Experience Level"
+                  triggerClassName="py-2.5 bg-zinc-950 border-zinc-700"
                 />
               </div>
 

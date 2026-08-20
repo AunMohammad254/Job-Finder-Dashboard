@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Briefcase, MapPin, SlidersHorizontal, RotateCcw, Search, Sparkles } from 'lucide-react';
+import { Briefcase, MapPin, SlidersHorizontal, RotateCcw, Search, Sparkles, ArrowUpDown } from 'lucide-react';
 import SearchBar from '../components/SearchBar';
 import Filter from '../components/Filter';
+import Dropdown from '../components/Dropdown';
 import JobCard from '../components/JobCard';
 import EmptyState from '../components/EmptyState';
-import Button from '../components/Button';
 import jobs from '../data/jobs';
 
 export default function Jobs() {
@@ -15,16 +15,19 @@ export default function Jobs() {
   const initialSearch = searchParams.get('search') || '';
   const initialType = searchParams.get('type') || '';
   const initialLocation = searchParams.get('location') || '';
+  const initialSort = searchParams.get('sort') || 'featured';
 
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedType, setSelectedType] = useState(initialType);
   const [selectedLocation, setSelectedLocation] = useState(initialLocation);
+  const [sortBy, setSortBy] = useState(initialSort);
 
   // Sync state when URL params change (e.g. via navigation links)
   useEffect(() => {
     setSearchTerm(searchParams.get('search') || '');
     setSelectedType(searchParams.get('type') || '');
     setSelectedLocation(searchParams.get('location') || '');
+    setSortBy(searchParams.get('sort') || 'featured');
   }, [searchParams]);
 
   // Extract unique filter options dynamically from dataset
@@ -36,43 +39,57 @@ export default function Jobs() {
     return Array.from(new Set(jobs.map((j) => j.location))).filter(Boolean);
   }, []);
 
+  const sortOptions = [
+    { label: 'Featured First', value: 'featured' },
+    { label: 'Most Recent', value: 'recent' },
+    { label: 'Title: A to Z', value: 'title-asc' }
+  ];
+
   // Update URL search parameters when filters change
-  const updateParams = (newSearch, newType, newLoc) => {
+  const updateParams = (newSearch, newType, newLoc, newSort) => {
     const params = {};
     if (newSearch) params.search = newSearch;
     if (newType) params.type = newType;
     if (newLoc) params.location = newLoc;
+    if (newSort && newSort !== 'featured') params.sort = newSort;
     setSearchParams(params, { replace: true });
   };
 
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearchTerm(val);
-    updateParams(val, selectedType, selectedLocation);
+    updateParams(val, selectedType, selectedLocation, sortBy);
   };
 
   const handleTypeChange = (val) => {
     setSelectedType(val);
-    updateParams(searchTerm, val, selectedLocation);
+    updateParams(searchTerm, val, selectedLocation, sortBy);
   };
 
   const handleLocationChange = (val) => {
     setSelectedLocation(val);
-    updateParams(searchTerm, selectedType, val);
+    updateParams(searchTerm, selectedType, val, sortBy);
+  };
+
+  const handleSortChange = (val) => {
+    const sortVal = val || 'featured';
+    setSortBy(sortVal);
+    updateParams(searchTerm, selectedType, selectedLocation, sortVal);
   };
 
   const handleResetFilters = () => {
     setSearchTerm('');
     setSelectedType('');
     setSelectedLocation('');
+    setSortBy('featured');
     setSearchParams({}, { replace: true });
   };
 
-  const hasActiveFilters = Boolean(searchTerm || selectedType || selectedLocation);
+  const hasActiveFilters = Boolean(searchTerm || selectedType || selectedLocation || (sortBy && sortBy !== 'featured'));
 
-  // Filtered jobs derivation (Case-insensitive title, company, skills AND jobType AND location)
+  // Filtered & Sorted jobs derivation
   const filteredJobs = useMemo(() => {
-    return jobs.filter((job) => {
+    const filtered = jobs.filter((job) => {
       // 1. Search filter matching title, company, or any skill
       const query = searchTerm.toLowerCase().trim();
       const matchesSearch =
@@ -84,14 +101,30 @@ export default function Jobs() {
       // 2. Job Type filter
       const matchesType = !selectedType || job.jobType === selectedType;
 
-      // 3. Location filter (substring or exact match for cities/remote)
+      // 3. Location filter
       const matchesLocation =
         !selectedLocation ||
         job.location.toLowerCase().includes(selectedLocation.toLowerCase());
 
       return matchesSearch && matchesType && matchesLocation;
     });
-  }, [searchTerm, selectedType, selectedLocation]);
+
+    // Sorting
+    return [...filtered].sort((a, b) => {
+      if (sortBy === 'featured') {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return new Date(b.postedDate) - new Date(a.postedDate);
+      }
+      if (sortBy === 'recent') {
+        return new Date(b.postedDate) - new Date(a.postedDate);
+      }
+      if (sortBy === 'title-asc') {
+        return a.title.localeCompare(b.title);
+      }
+      return 0;
+    });
+  }, [searchTerm, selectedType, selectedLocation, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -118,10 +151,10 @@ export default function Jobs() {
       </div>
 
       {/* Filter & Search Toolbar */}
-      <div className="p-4 sm:p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl mb-8 space-y-4 shadow-xl shadow-black/40">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+      <div className="relative z-30 p-4 sm:p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl mb-8 space-y-4 shadow-xl shadow-black/40">
+        <div className="relative z-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
           {/* Search bar */}
-          <div className="lg:col-span-6">
+          <div className="sm:col-span-2 lg:col-span-5">
             <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5 text-purple-400" />
               Search keywords
@@ -129,12 +162,12 @@ export default function Jobs() {
             <SearchBar
               value={searchTerm}
               onChange={handleSearchChange}
-              placeholder="Search title, company, skill (React, Python)..."
+              placeholder="Search title, company, skill..."
             />
           </div>
 
           {/* Job Type Filter */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <Filter
               label="Job Type"
               icon={Briefcase}
@@ -146,7 +179,7 @@ export default function Jobs() {
           </div>
 
           {/* Location Filter */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <Filter
               label="Location"
               icon={MapPin}
@@ -156,11 +189,23 @@ export default function Jobs() {
               allLabel="All Locations"
             />
           </div>
+
+          {/* Sort By Dropdown */}
+          <div className="sm:col-span-2 lg:col-span-3">
+            <Dropdown
+              label="Sort By"
+              icon={ArrowUpDown}
+              options={sortOptions}
+              value={sortBy}
+              onChange={handleSortChange}
+              allLabel="Featured First"
+            />
+          </div>
         </div>
 
         {/* Active Filters bar */}
         {hasActiveFilters && (
-          <div className="pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="relative z-10 pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex flex-wrap items-center gap-2 text-zinc-400">
               <span className="font-semibold flex items-center gap-1">
                 <SlidersHorizontal className="w-3.5 h-3.5 text-purple-400" />
@@ -197,7 +242,7 @@ export default function Jobs() {
 
       {/* Jobs Grid / Empty State */}
       {filteredJobs.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredJobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
