@@ -7,42 +7,42 @@ const DEFAULT_SPOTLIGHT_RADIUS = 300;
 const DEFAULT_GLOW_COLOR = '132, 0, 255';
 const MOBILE_BREAKPOINT = 768;
 
-const cardData = [
+const defaultCardData = [
   {
     color: '#120F17',
-    title: 'Analytics',
-    description: 'Track user behavior',
-    label: 'Insights'
+    title: 'Smart Matching',
+    description: 'Find roles matching your exact tech stack and level',
+    label: 'AI Discovery'
   },
   {
     color: '#120F17',
-    title: 'Dashboard',
-    description: 'Centralized data view',
-    label: 'Overview'
+    title: 'Upfront Salaries',
+    description: 'No hidden numbers or guess games on compensation',
+    label: 'Transparency'
   },
   {
     color: '#120F17',
-    title: 'Collaboration',
-    description: 'Work together seamlessly',
-    label: 'Teamwork'
+    title: 'Pakistan Tech Hub',
+    description: 'Verified engineering teams in Karachi, Lahore, Islamabad & Remote',
+    label: 'Ecosystem'
   },
   {
     color: '#120F17',
-    title: 'Automation',
-    description: 'Streamline workflows',
-    label: 'Efficiency'
+    title: 'Instant Bookmarks',
+    description: 'Save high-priority jobs to your local persistent list with 1-click',
+    label: 'Tracker'
   },
   {
     color: '#120F17',
-    title: 'Integration',
-    description: 'Connect favorite tools',
-    label: 'Connectivity'
+    title: 'Direct Applying',
+    description: 'Skip tedious forms with fast employer contacts and streamlined processes',
+    label: 'Fast-Track'
   },
   {
     color: '#120F17',
-    title: 'Security',
-    description: 'Enterprise-grade protection',
-    label: 'Protection'
+    title: 'Verified Listings',
+    description: 'Zero duplicate spam or ghost jobs; verified employer openings only',
+    label: 'Security'
   }
 ];
 
@@ -471,6 +471,7 @@ const useMobileDetection = () => {
 };
 
 const MagicBento = ({
+  cards = defaultCardData,
   textAutoHide = true,
   enableStars = true,
   enableSpotlight = true,
@@ -500,7 +501,7 @@ const MagicBento = ({
       )}
 
       <BentoCardGrid gridRef={gridRef}>
-        {cardData.map((card, index) => {
+        {cards.map((card, index) => {
           const baseClassName = `magic-bento-card ${textAutoHide ? 'magic-bento-card--text-autohide' : ''} ${enableBorderGlow ? 'magic-bento-card--border-glow' : ''}`;
           const cardProps = {
             className: baseClassName,

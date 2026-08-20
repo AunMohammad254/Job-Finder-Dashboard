@@ -1,34 +1,53 @@
-import SpecularButton from "./components/SpecularButton/SpecularButton"
-import MagicBento from "./components/MagicBento/MagicBento"
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { SavedJobsProvider } from './context/SavedJobsContext';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import Jobs from './pages/Jobs';
+import JobDetails from './pages/JobDetails';
+import SavedJobs from './pages/SavedJobs';
+import NotFound from './pages/NotFound';
 
-export default function App({name}) {
+export default function App() {
   return (
-    <div className="flex flex-col gap-6 min-h-screen items-center justify-center bg-black p-6">
-      <h1 className="text-3xl font-bold text-white text-center">
-       Assalamualikum {name}! Welcome to Job Finder Dashboard
-      </h1>
-      <div className="flex gap-4">
-        <SpecularButton>
-          Login
-        </SpecularButton>
-        <SpecularButton>
-          Sign Up
-        </SpecularButton>
-      </div>
-      <div className="w-full flex justify-center">
-        <MagicBento 
-          textAutoHide={true}
-          enableStars={true}
-          enableSpotlight={true}
-          enableBorderGlow={true}
-          enableTilt
-          enableMagnetism
-          clickEffect={true}
-          spotlightRadius={300}
-          particleCount={12}
-          glowColor="132, 0, 255"
-        />
-      </div>
-    </div>
-  )
+    <Router>
+      <SavedJobsProvider>
+        <div className="flex flex-col min-h-screen bg-[#09080e] text-zinc-100 selection:bg-purple-600 selection:text-white">
+          {/* Global Notification Toast Container */}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#181524',
+                color: '#f3f4f6',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                fontSize: '14px'
+              }
+            }}
+          />
+
+          {/* Sticky Navigation Bar */}
+          <Navbar />
+
+          {/* Main App Content Body */}
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/jobs" element={<Jobs />} />
+              <Route path="/jobs/:id" element={<JobDetails />} />
+              <Route path="/saved" element={<SavedJobs />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+
+          {/* Platform Footer */}
+          <Footer />
+        </div>
+      </SavedJobsProvider>
+    </Router>
+  );
 }
