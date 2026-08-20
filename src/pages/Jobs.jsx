@@ -24,7 +24,7 @@ import SkeletonJobCard from '../components/SkeletonJobCard';
 import Pagination from '../components/Pagination';
 import EmptyState from '../components/EmptyState';
 import { useDebounce } from '../hooks/useDebounce';
-import { useJobsContext } from '../context/JobsContext';
+import { useJobsContext } from '../hooks/useJobs';
 
 const CATEGORIES = [
   { label: 'All Roles', value: '', icon: Layers },
@@ -67,6 +67,7 @@ export default function Jobs() {
 
   // Sync state when URL params change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSearchTerm(searchParams.get('search') || '');
     setSelectedType(searchParams.get('type') || '');
     setSelectedLocation(searchParams.get('location') || '');
@@ -74,19 +75,14 @@ export default function Jobs() {
     setSortBy(searchParams.get('sort') || 'featured');
   }, [searchParams]);
 
-  // Reset to page 1 on filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch, selectedType, selectedLocation, selectedCategory, sortBy]);
-
   // Extract unique filter options dynamically from dataset
   const jobTypeOptions = useMemo(() => {
     return Array.from(new Set(jobs.map((j) => j.jobType))).filter(Boolean);
-  }, []);
+  }, [jobs]);
 
   const locationOptions = useMemo(() => {
     return Array.from(new Set(jobs.map((j) => j.location))).filter(Boolean);
-  }, []);
+  }, [jobs]);
 
   const sortOptions = [
     { label: 'Featured First', value: 'featured' },
@@ -168,12 +164,12 @@ export default function Jobs() {
       // 4. Category filter matching keywords in title or skills
       const matchesCategory =
         !selectedCategory ||
-        (selectedCategory === 'frontend' && (job.title.toLowerCase().includes('frontend') || job.skills.includes('React'))) ||
-        (selectedCategory === 'backend' && (job.title.toLowerCase().includes('backend') || job.title.toLowerCase().includes('node') || job.skills.includes('Python'))) ||
-        (selectedCategory === 'ai' && (job.title.toLowerCase().includes('ai') || job.title.toLowerCase().includes('machine') || job.skills.includes('Python'))) ||
-        (selectedCategory === 'design' && (job.title.toLowerCase().includes('design') || job.skills.includes('Figma'))) ||
-        (selectedCategory === 'mobile' && (job.title.toLowerCase().includes('mobile') || job.skills.includes('React Native'))) ||
-        (selectedCategory === 'devops' && (job.title.toLowerCase().includes('devops') || job.skills.includes('AWS')));
+        (selectedCategory === 'frontend' && (job.title.toLowerCase().includes('frontend') || job.skills?.includes('React'))) ||
+        (selectedCategory === 'backend' && (job.title.toLowerCase().includes('backend') || job.title.toLowerCase().includes('node') || job.skills?.includes('Python'))) ||
+        (selectedCategory === 'ai' && (job.title.toLowerCase().includes('ai') || job.title.toLowerCase().includes('machine') || job.skills?.includes('Python'))) ||
+        (selectedCategory === 'design' && (job.title.toLowerCase().includes('design') || job.skills?.includes('Figma'))) ||
+        (selectedCategory === 'mobile' && (job.title.toLowerCase().includes('mobile') || job.skills?.includes('React Native'))) ||
+        (selectedCategory === 'devops' && (job.title.toLowerCase().includes('devops') || job.skills?.includes('AWS')));
 
       return matchesSearch && matchesType && matchesLocation && matchesCategory;
     });
@@ -193,14 +189,20 @@ export default function Jobs() {
       }
       return 0;
     });
-  }, [debouncedSearch, selectedType, selectedLocation, selectedCategory, sortBy]);
+  }, [jobs, debouncedSearch, selectedType, selectedLocation, selectedCategory, sortBy]);
 
   // Paginated chunk
   const totalPages = Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
+  const safePage = Math.min(currentPage, totalPages || 1);
   const paginatedJobs = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const start = (safePage - 1) * ITEMS_PER_PAGE;
     return filteredJobs.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredJobs, currentPage]);
+  }, [filteredJobs, safePage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -363,9 +365,9 @@ export default function Jobs() {
 
           {/* Pagination */}
           <Pagination
-            currentPage={currentPage}
+            currentPage={safePage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange}
           />
         </>
       ) : (

@@ -11,6 +11,7 @@ import Jobs from './pages/Jobs';
 import JobDetails from './pages/JobDetails';
 import SavedJobs from './pages/SavedJobs';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminAuthPreview from './pages/AdminAuthPreview';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -47,7 +48,8 @@ export default function App() {
                     <Route path="/jobs" element={<Jobs />} />
                     <Route path="/jobs/:id" element={<JobDetails />} />
                     <Route path="/saved" element={<SavedJobs />} />
-                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin-dashboard" element={<AdminAuthPreview />} />
+                    <Route path="/admin-dashboard/manage" element={<AdminDashboard />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>

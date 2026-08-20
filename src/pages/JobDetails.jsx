@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   Heart,
   MapPin,
-  Briefcase,
   DollarSign,
   Calendar,
   CheckCircle2,
@@ -16,9 +15,9 @@ import {
   Gift
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useSavedJobsContext } from '../context/SavedJobsContext';
-import { useApplicationsContext } from '../context/ApplicationsContext';
-import { useJobsContext } from '../context/JobsContext';
+import { useSavedJobsContext } from '../hooks/useSavedJobs';
+import { useApplicationsContext } from '../hooks/useApplications';
+import { useJobsContext } from '../hooks/useJobs';
 import Button from '../components/Button';
 import Dropdown from '../components/Dropdown';
 import JobCard from '../components/JobCard';

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Briefcase, Heart, Menu, X, Sparkles, Compass } from 'lucide-react';
-import { useSavedJobsContext } from '../context/SavedJobsContext';
+import { useSavedJobsContext } from '../hooks/useSavedJobs';
 import ThemeToggle from './ThemeToggle';
 import Button from './Button';
 

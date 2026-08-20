@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import initialJobs from '../data/jobs';
+import JobsContext from '../context/JobsContext';
 
 const JOBS_STORAGE_KEY = 'jobfinder:jobsList';
 
@@ -17,14 +18,17 @@ export function useJobs() {
     }
   });
 
-  // Sync to local storage & listen for external changes
+  // Effect 1: persist to localStorage whenever state changes
   useEffect(() => {
     try {
       localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(jobs));
     } catch (err) {
       console.warn('Failed to save jobs to LocalStorage', err);
     }
+  }, [jobs]);
 
+  // Effect 2: set up the cross-tab storage listener once
+  useEffect(() => {
     const handleStorage = (e) => {
       if (e.key === JOBS_STORAGE_KEY && e.newValue) {
         try {
@@ -34,10 +38,9 @@ export function useJobs() {
         }
       }
     };
-
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
-  }, [jobs]);
+  }, []);
 
   const addJob = useCallback((jobData) => {
     const newJob = {
@@ -70,6 +73,14 @@ export function useJobs() {
     deleteJob,
     getJobById
   };
+}
+
+export function useJobsContext() {
+  const context = useContext(JobsContext);
+  if (!context) {
+    throw new Error('useJobsContext must be used within a JobsProvider');
+  }
+  return context;
 }
 
 export default useJobs;

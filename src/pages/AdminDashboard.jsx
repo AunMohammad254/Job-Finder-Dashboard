@@ -28,8 +28,8 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useApplicationsContext } from '../context/ApplicationsContext';
-import { useJobsContext } from '../context/JobsContext';
+import { useApplicationsContext } from '../hooks/useApplications';
+import { useJobsContext } from '../hooks/useJobs';
 import Dropdown from '../components/Dropdown';
 import Button from '../components/Button';
 

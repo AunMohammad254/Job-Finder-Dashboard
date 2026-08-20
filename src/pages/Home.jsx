@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Flame, Briefcase, Zap } from 'lucide-react';
-import { useJobsContext } from '../context/JobsContext';
+import { useJobsContext } from '../hooks/useJobs';
 import Hero from '../components/Hero';
 import JobCard from '../components/JobCard';
+import { lazy, Suspense } from 'react';
 import Button from '../components/Button';
-import MagicBento from '../components/MagicBento/MagicBento';
+
+const MagicBento = lazy(() => import('../components/MagicBento/MagicBento'));
 
 export default function Home() {
   const { jobs } = useJobsContext();
@@ -70,18 +72,20 @@ export default function Home() {
 
         {/* MagicBento Grid */}
         <div className="w-full flex justify-center">
-          <MagicBento
-            textAutoHide={true}
-            enableStars={true}
-            enableSpotlight={true}
-            enableBorderGlow={true}
-            enableTilt={true}
-            enableMagnetism={true}
-            clickEffect={true}
-            spotlightRadius={300}
-            particleCount={14}
-            glowColor="132, 0, 255"
-          />
+          <Suspense fallback={null}>
+            <MagicBento
+              textAutoHide={true}
+              enableStars={true}
+              enableSpotlight={true}
+              enableBorderGlow={true}
+              enableTilt={true}
+              enableMagnetism={true}
+              clickEffect={true}
+              spotlightRadius={300}
+              particleCount={14}
+              glowColor="132, 0, 255"
+            />
+          </Suspense>
         </div>
       </section>
 

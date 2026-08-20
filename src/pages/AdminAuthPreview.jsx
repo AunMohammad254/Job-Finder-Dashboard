@@ -40,7 +40,7 @@ export default function AdminAuthPreview() {
 
         {/* Access Direct CTA */}
         <div className="space-y-3">
-          <Link to="/admin-dashboard" className="w-full block">
+          <Link to="/admin-dashboard/manage" className="w-full block">
             <Button
               variant="primary"
               size="lg"

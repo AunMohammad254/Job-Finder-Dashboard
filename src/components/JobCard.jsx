@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Heart, MapPin, DollarSign, Calendar, ArrowRight } from 'lucide-react';
-import { useSavedJobsContext } from '../context/SavedJobsContext';
+import { useSavedJobsContext } from '../hooks/useSavedJobs';
 import Button from './Button';
 
 const jobTypeColors = {

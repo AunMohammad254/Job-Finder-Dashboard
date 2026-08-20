@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, ShieldCheck, Zap, TrendingUp, Search } from 'lucide-react';
+import { Sparkles, ShieldCheck, Zap, TrendingUp, Search } from 'lucide-react';
 import Button from './Button';
 
 export default function Hero() {

@@ -1,5 +1,6 @@
-import { forwardRef } from 'react';
-import SpecularButton from './SpecularButton/SpecularButton';
+import { forwardRef, lazy, Suspense } from 'react';
+
+const SpecularButton = lazy(() => import('./SpecularButton/SpecularButton'));
 import { cn } from '../lib/utils';
 
 const variantClasses = {
@@ -29,19 +30,21 @@ export const Button = forwardRef(({
 }, ref) => {
   if (variant === 'specular') {
     return (
-      <SpecularButton
-        size={size}
-        onClick={onClick}
-        disabled={disabled}
-        className={className}
-        type={type}
-        {...props}
-      >
-        <span className="flex items-center gap-2">
-          {Icon && <Icon className="w-4 h-4" />}
-          {children}
-        </span>
-      </SpecularButton>
+      <Suspense fallback={null}>
+        <SpecularButton
+          size={size}
+          onClick={onClick}
+          disabled={disabled}
+          className={className}
+          type={type}
+          {...props}
+        >
+          <span className="flex items-center gap-2">
+            {Icon && <Icon className="w-4 h-4" />}
+            {children}
+          </span>
+        </SpecularButton>
+      </Suspense>
     );
   }
 

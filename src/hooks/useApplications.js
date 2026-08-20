@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
+import ApplicationsContext from '../context/ApplicationsContext';
 
 const STORAGE_KEY = 'jobfinder:applications';
 
@@ -84,14 +85,17 @@ export function useApplications() {
     }
   });
 
-  // Sync to local storage & listen for external changes
+  // Effect 1: persist to localStorage whenever state changes
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
     } catch (err) {
       console.warn('Failed to save applications to LocalStorage', err);
     }
+  }, [applications]);
 
+  // Effect 2: set up the cross-tab storage listener once
+  useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === STORAGE_KEY && e.newValue) {
         try {
@@ -104,7 +108,7 @@ export function useApplications() {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [applications]);
+  }, []);
 
   const addApplication = useCallback((newApp) => {
     const appWithId = {
@@ -141,6 +145,14 @@ export function useApplications() {
     deleteApplication,
     getApplicationsByJobId
   };
+}
+
+export function useApplicationsContext() {
+  const context = useContext(ApplicationsContext);
+  if (!context) {
+    throw new Error('useApplicationsContext must be used within an ApplicationsProvider');
+  }
+  return context;
 }
 
 export default useApplications;

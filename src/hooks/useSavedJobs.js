@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
+import SavedJobsContext from '../context/SavedJobsContext';
 
 const STORAGE_KEY = 'jobfinder:savedJobIds';
 
@@ -42,6 +43,14 @@ export function useSavedJobs() {
   }, []);
 
   return { savedIds, isSaved, toggleSave, clearSaved };
+}
+
+export function useSavedJobsContext() {
+  const context = useContext(SavedJobsContext);
+  if (!context) {
+    throw new Error('useSavedJobsContext must be used within a SavedJobsProvider');
+  }
+  return context;
 }
 
 export default useSavedJobs;

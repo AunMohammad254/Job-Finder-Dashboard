@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 import toast from 'react-hot-toast';
 import { useSavedJobs } from '../hooks/useSavedJobs';
 import jobs from '../data/jobs';
@@ -73,12 +73,5 @@ export function SavedJobsProvider({ children }) {
   );
 }
 
-export function useSavedJobsContext() {
-  const context = useContext(SavedJobsContext);
-  if (!context) {
-    throw new Error('useSavedJobsContext must be used within a SavedJobsProvider');
-  }
-  return context;
-}
 
 export default SavedJobsContext;

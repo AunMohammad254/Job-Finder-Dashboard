@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Compass, Home, ArrowLeft } from 'lucide-react';
+import { Compass, Home } from 'lucide-react';
 import Button from '../components/Button';
 
 export default function NotFound() {
@@ -13,11 +13,11 @@ export default function NotFound() {
         Error 404
       </div>
 
-      <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-4">
+      <h1 className="text-4xl sm:text-5xl font-black text-zinc-900 dark:text-white tracking-tight mb-4">
         Page Not Found
       </h1>
 
-      <p className="text-sm sm:text-base text-zinc-400 max-w-md mx-auto mb-8 leading-relaxed">
+      <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 max-w-md mx-auto mb-8 leading-relaxed">
         The page you are looking for doesn't exist or has been moved. Use the buttons below to return to safety.
       </p>
 

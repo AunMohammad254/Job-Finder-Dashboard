@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+
 import { Heart, Trash2, ArrowUpDown, Briefcase, Filter as FilterIcon } from 'lucide-react';
-import { useSavedJobsContext } from '../context/SavedJobsContext';
+import { useSavedJobsContext } from '../hooks/useSavedJobs';
 import JobCard from '../components/JobCard';
 import Dropdown from '../components/Dropdown';
 import EmptyState from '../components/EmptyState';
@@ -41,22 +41,22 @@ export default function SavedJobs() {
       {/* Header section */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold dark:text-rose-400 uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-2">
             <Heart className="w-4 h-4 fill-current" />
             <span>Persistent Bookmarks</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
             Saved Job Listings
           </h1>
-          <p className="text-sm dark:text-zinc-400 mt-1">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
             Review and track roles you've bookmarked. Stored securely in your browser's LocalStorage.
           </p>
         </div>
 
         {savedCount > 0 && (
           <div className="flex items-center gap-3 self-start sm:self-auto">
-            <div className="text-xs dark:text-zinc-400 font-medium dark:bg-zinc-900/80 px-3.5 py-2 rounded-xl border dark:border-zinc-800 dark:shadow-none">
-              <strong className="dark:text-purple-400 font-bold">{savedCount}</strong> saved {savedCount === 1 ? 'position' : 'positions'}
+            <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium bg-white dark:bg-zinc-900/80 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none">
+              <strong className="text-purple-600 dark:text-purple-400 font-bold">{savedCount}</strong> saved {savedCount === 1 ? 'position' : 'positions'}
             </div>
             <Button
               variant="danger"
@@ -72,7 +72,7 @@ export default function SavedJobs() {
 
       {/* Optional Toolbar if multiple saved jobs */}
       {savedCount > 1 && (
-        <div className="relative z-30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 p-3 rounded-2xl dark:bg-zinc-900/60 border dark:border-zinc-800/80 backdrop-blur-md dark:shadow-none">
+        <div className="relative z-30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6 p-3 rounded-2xl bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800/80 shadow-sm dark:shadow-none backdrop-blur-md">
           <div className="flex flex-wrap items-center gap-3">
             {savedTypeOptions.length > 1 && (
               <Dropdown
@@ -100,7 +100,7 @@ export default function SavedJobs() {
             <button
               type="button"
               onClick={() => setSelectedType('')}
-              className="text-xs dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors self-start sm:self-auto px-2 py-1 cursor-pointer"
+              className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors self-start sm:self-auto px-2 py-1 cursor-pointer"
             >
               Clear filter
             </button>

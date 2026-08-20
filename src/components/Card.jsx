@@ -1,4 +1,3 @@
-import React from 'react'
 import SpecularButton from './SpecularButton/SpecularButton'
 function Card() {
   return (

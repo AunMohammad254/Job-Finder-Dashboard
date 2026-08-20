@@ -1,6 +1,6 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useCallback } from 'react';
 
-export const ThemeContext = createContext(null);
+const ThemeContext = createContext(null);
 const THEME_STORAGE_KEY = 'jobfinder:theme';
 
 export function ThemeProvider({ children }) {
