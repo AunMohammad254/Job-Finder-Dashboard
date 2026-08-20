@@ -3,9 +3,9 @@ import { Briefcase, Heart, Mail, ArrowUpRight } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-zinc-800/80 bg-zinc-950/90 text-zinc-400 relative overflow-hidden">
+    <footer className="border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50 dark:bg-zinc-950/90 text-zinc-500 dark:text-zinc-400 relative overflow-hidden">
       {/* Background ambient glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-24 bg-purple-600/10 blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-24 bg-purple-500/5 dark:bg-purple-600/10 blur-[100px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
@@ -17,11 +17,11 @@ export default function Footer() {
                   <Briefcase className="w-4 h-4 text-purple-400" />
                 </div>
               </div>
-              <span className="text-lg font-bold text-white tracking-tight">
-                JobFinder<span className="text-purple-400">Pro</span>
+              <span className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
+                JobFinder<span className="text-purple-500 dark:text-purple-400">Pro</span>
               </span>
             </Link>
-            <p className="text-sm text-zinc-400 leading-relaxed">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
               Pakistan's premier developer career platform. Discover verified frontend, backend, AI, and design roles with upfront salaries.
             </p>
             <div className="flex items-center gap-3 pt-2">
@@ -29,7 +29,7 @@ export default function Footer() {
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-purple-500/50 hover:bg-zinc-800 transition-all"
+                className="w-9 h-9 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-purple-400/50 dark:hover:border-purple-500/50 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all"
                 aria-label="GitHub"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -40,7 +40,7 @@ export default function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-purple-500/50 hover:bg-zinc-800 transition-all"
+                className="w-9 h-9 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-purple-400/50 dark:hover:border-purple-500/50 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all"
                 aria-label="LinkedIn"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@ export default function Footer() {
                 href="https://x.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-purple-500/50 hover:bg-zinc-800 transition-all"
+                className="w-9 h-9 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-purple-400/50 dark:hover:border-purple-500/50 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all"
                 aria-label="X / Twitter"
               >
                 <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@ export default function Footer() {
               </a>
               <a
                 href="mailto:contact@jobfinder.example.com"
-                className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-purple-500/50 hover:bg-zinc-800 transition-all"
+                className="w-9 h-9 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-purple-400/50 dark:hover:border-purple-500/50 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all"
                 aria-label="Email"
               >
                 <Mail className="w-4 h-4" />
@@ -70,23 +70,23 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white tracking-wider uppercase mb-4">
               Explore
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/" className="hover:text-purple-400 transition-colors flex items-center gap-1 group">
+                <Link to="/" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex items-center gap-1 group">
                   Home Overview
                 </Link>
               </li>
               <li>
-                <Link to="/jobs" className="hover:text-purple-400 transition-colors flex items-center gap-1 group">
+                <Link to="/jobs" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex items-center gap-1 group">
                   Browse All Jobs
                   <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
               </li>
               <li>
-                <Link to="/saved" className="hover:text-purple-400 transition-colors flex items-center gap-1 group">
+                <Link to="/saved" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex items-center gap-1 group">
                   Saved Bookmarks
                 </Link>
               </li>
@@ -95,27 +95,27 @@ export default function Footer() {
 
           {/* Top Categories */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white tracking-wider uppercase mb-4">
               Popular Roles
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/jobs?type=Remote" className="hover:text-purple-400 transition-colors">
+                <Link to="/jobs?type=Remote" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                   Remote Engineering
                 </Link>
               </li>
               <li>
-                <Link to="/jobs?search=React" className="hover:text-purple-400 transition-colors">
-                  React & Frontend
+                <Link to="/jobs?search=React" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                  React &amp; Frontend
                 </Link>
               </li>
               <li>
-                <Link to="/jobs?search=AI" className="hover:text-purple-400 transition-colors">
-                  AI & Data Science
+                <Link to="/jobs?search=AI" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                  AI &amp; Data Science
                 </Link>
               </li>
               <li>
-                <Link to="/jobs?type=Internship" className="hover:text-purple-400 transition-colors">
+                <Link to="/jobs?type=Internship" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                   Student Internships
                 </Link>
               </li>
@@ -124,27 +124,27 @@ export default function Footer() {
 
           {/* Cities */}
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-4">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white tracking-wider uppercase mb-4">
               Locations
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/jobs?location=Karachi" className="hover:text-purple-400 transition-colors">
+                <Link to="/jobs?location=Karachi" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                   Jobs in Karachi
                 </Link>
               </li>
               <li>
-                <Link to="/jobs?location=Lahore" className="hover:text-purple-400 transition-colors">
+                <Link to="/jobs?location=Lahore" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                   Jobs in Lahore
                 </Link>
               </li>
               <li>
-                <Link to="/jobs?location=Islamabad" className="hover:text-purple-400 transition-colors">
+                <Link to="/jobs?location=Islamabad" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                   Jobs in Islamabad
                 </Link>
               </li>
               <li>
-                <Link to="/jobs?location=Remote" className="hover:text-purple-400 transition-colors">
+                <Link to="/jobs?location=Remote" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                   Global Remote
                 </Link>
               </li>
@@ -153,7 +153,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-6 border-t border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+        <div className="mt-12 pt-6 border-t border-slate-200 dark:border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400 dark:text-zinc-500">
           <p>© {new Date().getFullYear()} JobFinder Pro. Frontend Assignment Project.</p>
           <p className="flex items-center gap-1">
             Crafted with React, Tailwind CSS &amp; <Heart className="w-3.5 h-3.5 text-rose-500 fill-current inline" />

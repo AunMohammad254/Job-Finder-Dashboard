@@ -16,17 +16,27 @@
   letter-spacing: 0.01em;
   line-height: 1;
   color: var(--sb-text-color);
-  background: color-mix(in srgb, var(--sb-tint) calc(var(--sb-tint-opacity) * 100%), transparent);
+  /* Use a purple gradient as the base fill - visible in all modes */
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%);
   border-radius: var(--sb-radius);
   width: var(--sb-width);
   backdrop-filter: blur(var(--sb-blur));
   -webkit-backdrop-filter: blur(var(--sb-blur));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.25);
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 16px rgba(109, 40, 217, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   outline: none;
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.specular-button:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 20px rgba(124, 58, 237, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .specular-button:active {
@@ -34,7 +44,7 @@
 }
 
 .specular-button:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--sb-text-color) 60%, transparent);
+  outline: 2px solid rgba(167, 139, 250, 0.7);
   outline-offset: 3px;
 }
 

@@ -208,21 +208,21 @@ export default function Jobs() {
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-purple-400 uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-purple-500 dark:text-purple-400 uppercase tracking-wider mb-2">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Explore Opportunities</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
               Browse Developer Jobs
             </h1>
-            <p className="text-sm text-zinc-400 mt-1">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               Find and filter verified engineering roles across Pakistan and remote teams.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-zinc-400 font-medium bg-zinc-900/80 px-3.5 py-2 rounded-xl border border-zinc-800 self-start md:self-auto">
+          <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium bg-white dark:bg-zinc-900/80 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none self-start md:self-auto">
             <span>
-              Showing <strong className="text-purple-400 font-bold">{filteredJobs.length}</strong> of {jobs.length} roles
+              Showing <strong className="text-purple-600 dark:text-purple-400 font-bold">{filteredJobs.length}</strong> of {jobs.length} roles
             </span>
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function Jobs() {
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 cursor-pointer ${
                 isSelected
                   ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30 border border-purple-500/50 font-semibold'
-                  : 'bg-zinc-900/70 hover:bg-zinc-800/80 text-zinc-400 hover:text-white border border-zinc-800'
+                  : 'bg-white dark:bg-zinc-900/70 hover:bg-slate-100 dark:hover:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none'
               }`}
             >
               <CatIcon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-purple-400'}`} />
@@ -252,12 +252,12 @@ export default function Jobs() {
       </div>
 
       {/* Filter & Search Toolbar */}
-      <div className="relative z-30 p-4 sm:p-6 rounded-2xl bg-zinc-900/70 border border-zinc-800 backdrop-blur-xl mb-8 space-y-4 shadow-xl shadow-black/40">
+      <div className="relative z-30 p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900/70 border border-slate-200 dark:border-zinc-800 backdrop-blur-xl mb-8 space-y-4 shadow-lg shadow-slate-200/80 dark:shadow-black/40">
         <div className="relative z-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
           {/* Search bar */}
           <div className="sm:col-span-2 lg:col-span-5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-              <Search className="w-3.5 h-3.5 text-purple-400" />
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Search className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
               Search keywords
             </label>
             <SearchBar
@@ -306,29 +306,29 @@ export default function Jobs() {
 
         {/* Active Filters bar */}
         {hasActiveFilters && (
-          <div className="relative z-10 pt-3 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex flex-wrap items-center gap-2 text-zinc-400">
+          <div className="relative z-10 pt-3 border-t border-slate-200 dark:border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-zinc-500 dark:text-zinc-400">
               <span className="font-semibold flex items-center gap-1">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-purple-400" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
                 Active Filters:
               </span>
               {searchTerm && (
-                <span className="px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300">
-                  Keyword: "{searchTerm}"
+                <span className="px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-300">
+                  Keyword: &quot;{searchTerm}&quot;
                 </span>
               )}
               {selectedType && (
-                <span className="px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300">
+                <span className="px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-300">
                   Type: {selectedType}
                 </span>
               )}
               {selectedLocation && (
-                <span className="px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300">
+                <span className="px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-300">
                   Location: {selectedLocation}
                 </span>
               )}
               {selectedCategory && (
-                <span className="px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 capitalize">
+                <span className="px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-600 dark:text-purple-300 capitalize">
                   Category: {selectedCategory}
                 </span>
               )}
@@ -337,7 +337,7 @@ export default function Jobs() {
             <button
               type="button"
               onClick={handleResetFilters}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 border border-rose-900/40 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" />
               Reset filters

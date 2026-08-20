@@ -20,7 +20,7 @@ export default function App() {
         <JobsProvider>
           <SavedJobsProvider>
             <ApplicationsProvider>
-              <div className="flex flex-col min-h-screen bg-[#09080e] dark:bg-[#09080e] light:bg-slate-50 text-zinc-100 dark:text-zinc-100 light:text-zinc-900 selection:bg-purple-600 selection:text-white transition-colors duration-200">
+              <div className="flex flex-col min-h-screen transition-colors duration-300 selection:bg-purple-600 selection:text-white">
                 {/* Global Notification Toast Container */}
                 <Toaster
                   position="bottom-right"

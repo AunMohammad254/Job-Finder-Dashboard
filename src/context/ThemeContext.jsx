@@ -1,51 +1,48 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useCallback } from 'react';
 
-const ThemeContext = createContext(null);
-const THEME_KEY = 'jobfinder:theme';
+export const ThemeContext = createContext(null);
+const THEME_STORAGE_KEY = 'jobfinder:theme';
 
 export function ThemeProvider({ children }) {
+  // Read initial state directly from document.documentElement set by index.html script
   const [theme, setTheme] = useState(() => {
-    try {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      return savedTheme || 'dark';
-    } catch {
-      return 'dark';
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
     }
+    return 'dark';
   });
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-      const root = document.documentElement;
-      if (theme === 'dark') {
-        root.classList.add('dark');
-        root.classList.remove('light');
-      } else {
-        root.classList.add('light');
-        root.classList.remove('dark');
+  const toggleTheme = useCallback(() => {
+    setTheme((prevTheme) => {
+      const nextTheme = prevTheme === 'dark' ? 'light' : 'dark';
+      
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      } catch (err) {
+        console.warn('Failed to save theme to LocalStorage', err);
       }
-    } catch (e) {
-      console.warn('Theme storage failed', e);
-    }
-  }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
+      if (typeof document !== 'undefined') {
+        if (nextTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.add('light');
+          document.documentElement.classList.remove('dark');
+        }
+      }
+
+      return nextTheme;
+    });
+  }, []);
+
+  const isDark = theme === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ theme, isDark: theme === 'dark', toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, isDark, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
 }
 
 export default ThemeContext;

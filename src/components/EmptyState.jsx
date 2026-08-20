@@ -12,17 +12,17 @@ export default function EmptyState({
   className = ''
 }) {
   return (
-    <div className={`flex flex-col items-center justify-center text-center p-8 sm:p-12 rounded-3xl bg-zinc-900/40 border border-zinc-800/80 border-dashed backdrop-blur-sm max-w-lg mx-auto my-8 ${className}`}>
+    <div className={`flex flex-col items-center justify-center text-center p-8 sm:p-12 rounded-3xl bg-white dark:bg-zinc-900/40 border border-slate-200 dark:border-zinc-800/80 border-dashed backdrop-blur-sm max-w-lg mx-auto my-8 shadow-sm dark:shadow-none ${className}`}>
       {/* Icon Circle with ambient glow */}
-      <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-5 shadow-lg shadow-purple-500/10">
+      <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 dark:text-purple-400 mb-5 shadow-lg shadow-purple-500/10">
         <Icon className="w-8 h-8" />
       </div>
 
-      <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
+      <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2 tracking-tight">
         {title}
       </h3>
 
-      <p className="text-sm text-zinc-400 max-w-sm mb-6 leading-relaxed">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mb-6 leading-relaxed">
         {message}
       </p>
 

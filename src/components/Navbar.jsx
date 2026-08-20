@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Briefcase, Heart, Menu, X, Sparkles, Compass, Moon, Sun } from 'lucide-react';
+import { Briefcase, Heart, Menu, X, Sparkles, Compass } from 'lucide-react';
 import { useSavedJobsContext } from '../context/SavedJobsContext';
-import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from './ThemeToggle';
 import Button from './Button';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { savedCount } = useSavedJobsContext();
-  const { isDark, toggleTheme } = useTheme();
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -23,7 +22,7 @@ export default function Navbar() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-black/75 backdrop-blur-xl transition-all duration-300">
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 dark:border-zinc-800/80 border-slate-200/80 bg-white/80 dark:bg-black/75 backdrop-blur-xl transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
@@ -38,20 +37,20 @@ export default function Navbar() {
               </div>
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+              <span className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-1.5">
                 JobFinder
-                <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30">
                   Pro
                 </span>
               </span>
-              <span className="text-[11px] text-zinc-400 font-medium tracking-wide">
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium tracking-wide">
                 Career Dashboard
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 bg-zinc-900/60 p-1.5 rounded-full border border-zinc-800/80 backdrop-blur-md">
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-zinc-900/60 p-1.5 rounded-full border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-md">
             {navLinks.map((link) => (
               <NavLink
                 key={link.path}
@@ -59,8 +58,8 @@ export default function Navbar() {
                 className={({ isActive }) =>
                   `relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                     isActive
-                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-sm shadow-purple-600/20 font-semibold'
-                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50 border border-transparent'
+                      ? 'bg-purple-600/15 dark:bg-purple-600/20 text-purple-600 dark:text-purple-300 border border-purple-500/30 shadow-sm font-semibold'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-zinc-800/50 border border-transparent'
                   }`
                 }
               >
@@ -79,15 +78,8 @@ export default function Navbar() {
 
           {/* Action CTA & Theme Toggle & Mobile Toggle */}
           <div className="flex items-center gap-2.5">
-            {/* Theme Toggle Button */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="p-2.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-purple-300 transition-colors cursor-pointer"
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
+            {/* View Transitions Circular Spread Theme Toggle */}
+            <ThemeToggle />
 
             <Link to="/jobs" className="hidden sm:inline-flex">
               <Button

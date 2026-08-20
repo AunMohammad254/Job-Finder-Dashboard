@@ -10,6 +10,32 @@
   color-scheme: light dark;
 }
 
+/* Light mode overrides — activated when html.light is present */
+:where(.light, .light *) {
+  --border-color: #e2e8f0;
+  --background-dark: #ffffff;
+}
+
+:where(.light) .magic-bento-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+}
+
+:where(.light) .magic-bento-card__header,
+:where(.light) .magic-bento-card__content {
+  color: #1e1b4b;
+}
+
+:where(.light) .magic-bento-card__description {
+  color: #4c1d95;
+  opacity: 0.8;
+}
+
+:where(.light) .magic-bento-card--border-glow:hover {
+  box-shadow:
+    0 4px 20px rgba(109, 40, 217, 0.15),
+    0 0 30px rgba(132, 0, 255, 0.1);
+}
+
 .card-grid {
   display: grid;
   gap: 0.5em;

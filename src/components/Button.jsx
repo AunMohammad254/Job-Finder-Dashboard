@@ -4,10 +4,10 @@ import { cn } from '../lib/utils';
 
 const variantClasses = {
   primary: 'bg-purple-600 hover:bg-purple-500 text-white font-medium shadow-lg shadow-purple-600/25 hover:shadow-purple-500/40 border border-purple-500/40 active:scale-[0.98]',
-  secondary: 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-100 font-medium border border-zinc-700/50 hover:border-zinc-600 active:scale-[0.98]',
-  outline: 'bg-transparent hover:bg-purple-950/30 text-purple-300 hover:text-purple-200 border border-purple-500/40 hover:border-purple-400 active:scale-[0.98]',
-  ghost: 'bg-transparent hover:bg-zinc-800/60 text-zinc-300 hover:text-white active:scale-[0.98]',
-  danger: 'bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 hover:border-rose-700 active:scale-[0.98]'
+  secondary: 'bg-slate-100 dark:bg-zinc-800/80 hover:bg-slate-200 dark:hover:bg-zinc-700/80 text-zinc-800 dark:text-zinc-100 font-medium border border-slate-200 dark:border-zinc-700/50 hover:border-slate-300 dark:hover:border-zinc-600 active:scale-[0.98]',
+  outline: 'bg-transparent hover:bg-purple-50 dark:hover:bg-purple-950/30 text-purple-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-purple-200 border border-purple-400/60 dark:border-purple-500/40 hover:border-purple-500 dark:hover:border-purple-400 active:scale-[0.98]',
+  ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-zinc-800/60 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white active:scale-[0.98]',
+  danger: 'bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-300 border border-rose-300 dark:border-rose-800/60 hover:border-rose-400 dark:hover:border-rose-700 active:scale-[0.98]'
 };
 
 const sizeClasses = {
@@ -52,7 +52,7 @@ export const Button = forwardRef(({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-black',
+        'inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-black',
         variantClasses[variant] || variantClasses.primary,
         sizeClasses[size] || sizeClasses.md,
         className
