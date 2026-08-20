@@ -1,12 +1,42 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Briefcase, MapPin, SlidersHorizontal, RotateCcw, Search, Sparkles, ArrowUpDown } from 'lucide-react';
+import {
+  Briefcase,
+  MapPin,
+  SlidersHorizontal,
+  RotateCcw,
+  Search,
+  Sparkles,
+  ArrowUpDown,
+  Layers,
+  Code,
+  Server,
+  Palette,
+  Smartphone,
+  Cpu,
+  Terminal
+} from 'lucide-react';
 import SearchBar from '../components/SearchBar';
 import Filter from '../components/Filter';
 import Dropdown from '../components/Dropdown';
 import JobCard from '../components/JobCard';
+import SkeletonJobCard from '../components/SkeletonJobCard';
+import Pagination from '../components/Pagination';
 import EmptyState from '../components/EmptyState';
+import { useDebounce } from '../hooks/useDebounce';
 import jobs from '../data/jobs';
+
+const CATEGORIES = [
+  { label: 'All Roles', value: '', icon: Layers },
+  { label: 'Frontend', value: 'frontend', icon: Code },
+  { label: 'Backend', value: 'backend', icon: Server },
+  { label: 'AI & Data', value: 'ai', icon: Cpu },
+  { label: 'UI/UX Design', value: 'design', icon: Palette },
+  { label: 'Mobile', value: 'mobile', icon: Smartphone },
+  { label: 'DevOps', value: 'devops', icon: Terminal }
+];
+
+const ITEMS_PER_PAGE = 6;
 
 export default function Jobs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,20 +45,38 @@ export default function Jobs() {
   const initialSearch = searchParams.get('search') || '';
   const initialType = searchParams.get('type') || '';
   const initialLocation = searchParams.get('location') || '';
+  const initialCategory = searchParams.get('category') || '';
   const initialSort = searchParams.get('sort') || 'featured';
 
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const debouncedSearch = useDebounce(searchTerm, 300);
+
   const [selectedType, setSelectedType] = useState(initialType);
   const [selectedLocation, setSelectedLocation] = useState(initialLocation);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState(initialSort);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Sync state when URL params change (e.g. via navigation links)
+  // Initial load simulation for skeleton demonstration
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Sync state when URL params change
   useEffect(() => {
     setSearchTerm(searchParams.get('search') || '');
     setSelectedType(searchParams.get('type') || '');
     setSelectedLocation(searchParams.get('location') || '');
+    setSelectedCategory(searchParams.get('category') || '');
     setSortBy(searchParams.get('sort') || 'featured');
   }, [searchParams]);
+
+  // Reset to page 1 on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, selectedType, selectedLocation, selectedCategory, sortBy]);
 
   // Extract unique filter options dynamically from dataset
   const jobTypeOptions = useMemo(() => {
@@ -46,11 +94,12 @@ export default function Jobs() {
   ];
 
   // Update URL search parameters when filters change
-  const updateParams = (newSearch, newType, newLoc, newSort) => {
+  const updateParams = (newSearch, newType, newLoc, newCat, newSort) => {
     const params = {};
     if (newSearch) params.search = newSearch;
     if (newType) params.type = newType;
     if (newLoc) params.location = newLoc;
+    if (newCat) params.category = newCat;
     if (newSort && newSort !== 'featured') params.sort = newSort;
     setSearchParams(params, { replace: true });
   };
@@ -58,40 +107,49 @@ export default function Jobs() {
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearchTerm(val);
-    updateParams(val, selectedType, selectedLocation, sortBy);
+    updateParams(val, selectedType, selectedLocation, selectedCategory, sortBy);
   };
 
   const handleTypeChange = (val) => {
     setSelectedType(val);
-    updateParams(searchTerm, val, selectedLocation, sortBy);
+    updateParams(searchTerm, val, selectedLocation, selectedCategory, sortBy);
   };
 
   const handleLocationChange = (val) => {
     setSelectedLocation(val);
-    updateParams(searchTerm, selectedType, val, sortBy);
+    updateParams(searchTerm, selectedType, val, selectedCategory, sortBy);
+  };
+
+  const handleCategoryClick = (catVal) => {
+    setSelectedCategory(catVal);
+    updateParams(searchTerm, selectedType, selectedLocation, catVal, sortBy);
   };
 
   const handleSortChange = (val) => {
     const sortVal = val || 'featured';
     setSortBy(sortVal);
-    updateParams(searchTerm, selectedType, selectedLocation, sortVal);
+    updateParams(searchTerm, selectedType, selectedLocation, selectedCategory, sortVal);
   };
 
   const handleResetFilters = () => {
     setSearchTerm('');
     setSelectedType('');
     setSelectedLocation('');
+    setSelectedCategory('');
     setSortBy('featured');
+    setCurrentPage(1);
     setSearchParams({}, { replace: true });
   };
 
-  const hasActiveFilters = Boolean(searchTerm || selectedType || selectedLocation || (sortBy && sortBy !== 'featured'));
+  const hasActiveFilters = Boolean(
+    searchTerm || selectedType || selectedLocation || selectedCategory || (sortBy && sortBy !== 'featured')
+  );
 
   // Filtered & Sorted jobs derivation
   const filteredJobs = useMemo(() => {
     const filtered = jobs.filter((job) => {
-      // 1. Search filter matching title, company, or any skill
-      const query = searchTerm.toLowerCase().trim();
+      // 1. Search filter matching title, company, or any skill (using debounced query)
+      const query = debouncedSearch.toLowerCase().trim();
       const matchesSearch =
         !query ||
         job.title.toLowerCase().includes(query) ||
@@ -106,7 +164,17 @@ export default function Jobs() {
         !selectedLocation ||
         job.location.toLowerCase().includes(selectedLocation.toLowerCase());
 
-      return matchesSearch && matchesType && matchesLocation;
+      // 4. Category filter matching keywords in title or skills
+      const matchesCategory =
+        !selectedCategory ||
+        (selectedCategory === 'frontend' && (job.title.toLowerCase().includes('frontend') || job.skills.includes('React'))) ||
+        (selectedCategory === 'backend' && (job.title.toLowerCase().includes('backend') || job.title.toLowerCase().includes('node') || job.skills.includes('Python'))) ||
+        (selectedCategory === 'ai' && (job.title.toLowerCase().includes('ai') || job.title.toLowerCase().includes('machine') || job.skills.includes('Python'))) ||
+        (selectedCategory === 'design' && (job.title.toLowerCase().includes('design') || job.skills.includes('Figma'))) ||
+        (selectedCategory === 'mobile' && (job.title.toLowerCase().includes('mobile') || job.skills.includes('React Native'))) ||
+        (selectedCategory === 'devops' && (job.title.toLowerCase().includes('devops') || job.skills.includes('AWS')));
+
+      return matchesSearch && matchesType && matchesLocation && matchesCategory;
     });
 
     // Sorting
@@ -124,7 +192,14 @@ export default function Jobs() {
       }
       return 0;
     });
-  }, [searchTerm, selectedType, selectedLocation, sortBy]);
+  }, [debouncedSearch, selectedType, selectedLocation, selectedCategory, sortBy]);
+
+  // Paginated chunk
+  const totalPages = Math.ceil(filteredJobs.length / ITEMS_PER_PAGE);
+  const paginatedJobs = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredJobs.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredJobs, currentPage]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -145,9 +220,34 @@ export default function Jobs() {
           </div>
 
           <div className="flex items-center gap-2 text-xs text-zinc-400 font-medium bg-zinc-900/80 px-3.5 py-2 rounded-xl border border-zinc-800 self-start md:self-auto">
-            <span>Showing <strong className="text-purple-400 font-bold">{filteredJobs.length}</strong> of {jobs.length} roles</span>
+            <span>
+              Showing <strong className="text-purple-400 font-bold">{filteredJobs.length}</strong> of {jobs.length} roles
+            </span>
           </div>
         </div>
+      </div>
+
+      {/* Category Pills Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 no-scrollbar">
+        {CATEGORIES.map((cat) => {
+          const isSelected = selectedCategory === cat.value;
+          const CatIcon = cat.icon;
+          return (
+            <button
+              key={cat.value}
+              type="button"
+              onClick={() => handleCategoryClick(cat.value)}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                isSelected
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30 border border-purple-500/50 font-semibold'
+                  : 'bg-zinc-900/70 hover:bg-zinc-800/80 text-zinc-400 hover:text-white border border-zinc-800'
+              }`}
+            >
+              <CatIcon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-purple-400'}`} />
+              <span>{cat.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Filter & Search Toolbar */}
@@ -226,6 +326,11 @@ export default function Jobs() {
                   Location: {selectedLocation}
                 </span>
               )}
+              {selectedCategory && (
+                <span className="px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 capitalize">
+                  Category: {selectedCategory}
+                </span>
+              )}
             </div>
 
             <button
@@ -240,17 +345,32 @@ export default function Jobs() {
         )}
       </div>
 
-      {/* Jobs Grid / Empty State */}
-      {filteredJobs.length > 0 ? (
+      {/* Jobs Grid / Skeletons / Empty State */}
+      {isLoading ? (
         <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonJobCard key={i} />
           ))}
         </div>
+      ) : filteredJobs.length > 0 ? (
+        <>
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedJobs.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
       ) : (
         <EmptyState
           title="No Matching Jobs Found"
-          message={`No listings match your search "${searchTerm || selectedType || selectedLocation}". Try clearing your filters or exploring other tech keywords.`}
+          message={`No listings match your search criteria. Try clearing your filters or exploring other tech categories.`}
           actionLabel="Clear All Filters"
           onAction={handleResetFilters}
         />

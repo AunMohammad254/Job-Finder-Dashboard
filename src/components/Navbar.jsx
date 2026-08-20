@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Briefcase, Heart, Menu, X, Sparkles, Compass } from 'lucide-react';
+import { Briefcase, Heart, Menu, X, Sparkles, Compass, Moon, Sun } from 'lucide-react';
 import { useSavedJobsContext } from '../context/SavedJobsContext';
+import { useTheme } from '../context/ThemeContext';
 import Button from './Button';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { savedCount } = useSavedJobsContext();
+  const { isDark, toggleTheme } = useTheme();
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -75,8 +77,18 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Action CTA & Mobile Toggle */}
-          <div className="flex items-center gap-3">
+          {/* Action CTA & Theme Toggle & Mobile Toggle */}
+          <div className="flex items-center gap-2.5">
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="p-2.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-purple-300 transition-colors cursor-pointer"
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             <Link to="/jobs" className="hidden sm:inline-flex">
               <Button
                 variant="specular"

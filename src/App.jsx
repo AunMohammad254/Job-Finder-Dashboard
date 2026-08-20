@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { SavedJobsProvider } from './context/SavedJobsContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -12,8 +13,9 @@ import NotFound from './pages/NotFound';
 export default function App() {
   return (
     <Router>
-      <SavedJobsProvider>
-        <div className="flex flex-col min-h-screen bg-[#09080e] text-zinc-100 selection:bg-purple-600 selection:text-white">
+      <ThemeProvider>
+        <SavedJobsProvider>
+          <div className="flex flex-col min-h-screen bg-[#09080e] dark:bg-[#09080e] light:bg-slate-50 text-zinc-100 dark:text-zinc-100 light:text-zinc-900 selection:bg-purple-600 selection:text-white transition-colors duration-200">
           {/* Global Notification Toast Container */}
           <Toaster
             position="bottom-right"
@@ -48,6 +50,7 @@ export default function App() {
           <Footer />
         </div>
       </SavedJobsProvider>
-    </Router>
+    </ThemeProvider>
+  </Router>
   );
 }
