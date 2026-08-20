@@ -22,7 +22,7 @@ export default function Navbar() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 dark:border-zinc-800/80 border-slate-200/80 bg-white/80 dark:bg-black/75 backdrop-blur-xl transition-all duration-300">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-black/75 backdrop-blur-xl transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
@@ -96,12 +96,12 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 border border-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+              className="md:hidden p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800/80 border border-slate-200 dark:border-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? (
-                <X className="w-6 h-6 text-purple-400" />
+                <X className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               ) : (
                 <Menu className="w-6 h-6" />
               )}
@@ -112,7 +112,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu */}
       <div
-        className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden border-b border-zinc-800/80 bg-zinc-950/95 backdrop-blur-2xl ${
+        className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden border-b border-slate-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-2xl ${
           mobileMenuOpen ? 'max-h-80 opacity-100 py-4 px-4' : 'max-h-0 opacity-0 py-0 px-4'
         }`}
       >
@@ -125,16 +125,16 @@ export default function Navbar() {
               className={({ isActive }) =>
                 `px-4 py-3 rounded-xl text-base font-medium transition-all flex items-center justify-between ${
                   isActive
-                    ? 'bg-purple-600/20 text-purple-300 border border-purple-500/40 font-semibold'
-                    : 'text-zinc-300 hover:text-white hover:bg-zinc-900 border border-transparent'
+                    ? 'bg-purple-50 dark:bg-purple-600/20 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-500/40 font-semibold'
+                    : 'text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-900 border border-transparent'
                 }`
               }
             >
               <div className="flex items-center gap-3">
                 {link.name === 'Saved Jobs' ? (
-                  <Heart className="w-4 h-4 text-rose-400 fill-current" />
+                  <Heart className="w-4 h-4 text-rose-500 dark:text-rose-400 fill-current" />
                 ) : (
-                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <Sparkles className="w-4 h-4 text-purple-500 dark:text-purple-400" />
                 )}
                 {link.name}
               </div>
