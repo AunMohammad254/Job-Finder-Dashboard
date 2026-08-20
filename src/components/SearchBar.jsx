@@ -34,7 +34,7 @@ export default function SearchBar({
           onChange={onChange}
           autoFocus={autoFocus}
           placeholder={placeholder}
-          className="w-full pl-12 pr-12 py-3.5 sm:py-4 bg-white  text-zinc-900  rounded-2xl border border-slate-200 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all duration-200 text-sm sm:text-base shadow-sm  backdrop-blur-md"
+          className="w-full pl-12 pr-12 py-3.5 sm:py-4 bg-white dark:bg-zinc-900/90 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 rounded-2xl border border-slate-200 dark:border-zinc-700/60 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all duration-200 text-sm sm:text-base shadow-sm dark:shadow-inner backdrop-blur-md"
         />
 
         {/* Clear Button */}
@@ -42,7 +42,7 @@ export default function SearchBar({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-4 p-1 rounded-lg text-zinc-400 hover:text-zinc-700 :text-white hover:bg-slate-100 :bg-zinc-800 transition-colors focus:outline-none"
+            className="absolute right-4 p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors focus:outline-none"
             aria-label="Clear search"
           >
             <X className="w-4 h-4" />
