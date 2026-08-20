@@ -17,16 +17,19 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSavedJobsContext } from '../context/SavedJobsContext';
+import { useApplicationsContext } from '../context/ApplicationsContext';
+import { useJobsContext } from '../context/JobsContext';
 import Button from '../components/Button';
 import Dropdown from '../components/Dropdown';
 import JobCard from '../components/JobCard';
 import EmptyState from '../components/EmptyState';
-import jobs from '../data/jobs';
 
 export default function JobDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { jobs, getJobById } = useJobsContext();
   const { isSaved, toggleSave } = useSavedJobsContext();
+  const { addApplication, applications } = useApplicationsContext();
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [applicantName, setApplicantName] = useState('');
   const [applicantEmail, setApplicantEmail] = useState('');
@@ -34,8 +37,8 @@ export default function JobDetails() {
   const [experienceLevel, setExperienceLevel] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Find job in dataset
-  const job = jobs.find((j) => String(j.id) === String(id));
+  // Find job dynamically in synced context
+  const job = getJobById(id);
 
   // If not found
   if (!job) {
@@ -85,12 +88,23 @@ export default function JobDetails() {
     }
 
     setIsSubmitted(true);
+    addApplication({
+      jobId: job.id,
+      jobTitle: job.title,
+      company: job.company,
+      applicantName,
+      applicantEmail,
+      applicantResume: applicantResume || 'Not provided',
+      experienceLevel: experienceLevel || 'Not specified'
+    });
+
     setTimeout(() => {
       setShowApplyModal(false);
       setIsSubmitted(false);
       setApplicantName('');
       setApplicantEmail('');
       setApplicantResume('');
+      setExperienceLevel('');
       toast.success(`Application submitted for ${job.title}!`, {
         icon: '🎉',
         style: {
@@ -100,13 +114,15 @@ export default function JobDetails() {
           borderRadius: '12px'
         }
       });
-    }, 800);
+    }, 600);
   };
 
   // Recommended jobs
   const relatedJobs = jobs
     .filter((j) => j.id !== job.id && (j.jobType === job.jobType || j.location === job.location))
     .slice(0, 2);
+
+  const existingApp = applications.find((a) => String(a.jobId) === String(job.id));
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -124,6 +140,24 @@ export default function JobDetails() {
 
       {/* Main Details Card */}
       <div className="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 sm:p-10 backdrop-blur-xl shadow-2xl shadow-purple-950/20 mb-12">
+        {/* Sync Status Banner if already applied */}
+        {existingApp && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-zinc-900/60 to-purple-950/30 border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5 text-purple-300 font-semibold">
+              <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center">
+                <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
+              </div>
+              <div>
+                <span>You submitted an application for this role on {existingApp.appliedDate}</span>
+                <p className="text-[11px] text-zinc-400 font-normal mt-0.5">Tracked and managed via Admin Dashboard</p>
+              </div>
+            </div>
+            <span className="self-start sm:self-auto px-3 py-1 rounded-xl bg-purple-600/30 text-purple-200 border border-purple-500/40 font-bold tracking-wide">
+              Status: {existingApp.status}
+            </span>
+          </div>
+        )}
+
         {/* Top Header Row */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-8 border-b border-zinc-800">
           <div className="flex items-start gap-4 sm:gap-5">
@@ -203,7 +237,7 @@ export default function JobDetails() {
               className="flex-1 md:flex-none justify-center"
               icon={Send}
             >
-              Apply Now
+              {existingApp ? 'Re-apply / Update' : 'Apply Now'}
             </Button>
           </div>
         </div>

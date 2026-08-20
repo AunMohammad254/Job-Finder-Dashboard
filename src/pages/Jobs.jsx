@@ -24,7 +24,7 @@ import SkeletonJobCard from '../components/SkeletonJobCard';
 import Pagination from '../components/Pagination';
 import EmptyState from '../components/EmptyState';
 import { useDebounce } from '../hooks/useDebounce';
-import jobs from '../data/jobs';
+import { useJobsContext } from '../context/JobsContext';
 
 const CATEGORIES = [
   { label: 'All Roles', value: '', icon: Layers },
@@ -39,6 +39,7 @@ const CATEGORIES = [
 const ITEMS_PER_PAGE = 6;
 
 export default function Jobs() {
+  const { jobs } = useJobsContext();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Read initial values from URL query parameters if present

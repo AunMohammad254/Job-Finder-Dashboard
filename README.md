@@ -9,6 +9,13 @@ A modern, responsive, frontend-only **Job Finder Dashboard** built with **React*
 - **Multi-Page Routing**: Complete navigation powered by React Router DOM v6 with dynamic routing (`/jobs/:id`), active tab indicators, and a custom 404 page.
 - **Controlled Search & Multi-Filter Engine**: Live search across job titles, company names, and technical skills with dynamic dropdown filters (Job Type & Location) and URL query parameter synchronization (`/jobs?search=...&type=...&location=...`).
 - **Persistent Saved Jobs**: 1-click bookmarking system powered by `localStorage` (`jobfinder:savedJobIds`) via a custom `useSavedJobs` hook and global `SavedJobsContext`.
+- **Admin Recruitment Dashboard (`/admin-dashboard`)**:
+  - Direct access preview portal with auth status notice (`/admin`).
+  - Candidate Application Management with status progression (`Pending Review`, `Under Review`, `Interview Scheduled`, `Accepted`, `Rejected`).
+  - Real-time application search and status filtering.
+  - Detailed Candidate Profile Modal with email reachout and resume links.
+  - Job Listing Management (publish new jobs, delete listings).
+  - Hiring pipeline analytics and experience level breakdown charts.
 - **Dynamic Job Details**: In-depth role overviews with transparent compensation, bulleted responsibilities, benefits, interactive application modals, and similar recommended roles.
 - **Interactive UI & Visual Polish**:
   - **Specular WebGL Button (`SpecularButton`)**: Interactive real-time lighting shader tracking cursor movement.

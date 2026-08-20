@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Flame, Briefcase, Zap } from 'lucide-react';
+import { useJobsContext } from '../context/JobsContext';
 import Hero from '../components/Hero';
 import JobCard from '../components/JobCard';
 import Button from '../components/Button';
 import MagicBento from '../components/MagicBento/MagicBento';
-import jobs from '../data/jobs';
 
 export default function Home() {
+  const { jobs } = useJobsContext();
   const featuredJobs = jobs.filter((job) => job.featured).slice(0, 4);
 
   return (
