@@ -30,6 +30,8 @@ import {
 import toast from 'react-hot-toast';
 import { useApplicationsContext } from '../hooks/useApplications';
 import { useJobsContext } from '../hooks/useJobs';
+import { getInitials } from '../lib/utils';
+import { EXPERIENCE_LEVELS, INPUT_CLASS } from '../lib/constants';
 import Dropdown from '../components/Dropdown';
 import Button from '../components/Button';
 
@@ -63,9 +65,6 @@ const STATUS_OPTIONS = [
   'Accepted',
   'Rejected'
 ];
-
-// Shared input classes for form fields
-const inputClass = 'w-full px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-purple-500 transition-colors';
 
 export default function AdminDashboard() {
   const { applications, updateApplicationStatus, deleteApplication } = useApplicationsContext();
@@ -173,10 +172,6 @@ export default function AdminDashboard() {
   const handleDeleteJob = (jobId, title) => {
     deleteJob(jobId);
     toast.error(`Deleted job listing "${title}"`);
-  };
-
-  const getInitials = (name) => {
-    return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
   };
 
   // AUTH GATE
@@ -541,12 +536,7 @@ export default function AdminDashboard() {
                 Applicant Experience Levels
               </h3>
               <div className="space-y-4">
-                {[
-                  'Fresher / Entry-Level (0-1 Year)',
-                  'Junior to Mid-Level (1-3 Years)',
-                  'Senior Engineer (3-5+ Years)',
-                  'Lead / Staff (6+ Years)'
-                ].map((exp) => {
+                {EXPERIENCE_LEVELS.map((exp) => {
                   const count = applications.filter((a) => a.experienceLevel?.includes(exp.split(' ')[0])).length;
                   return (
                     <div key={exp} className="flex items-center justify-between p-3 rounded-xl dark:bg-zinc-950/60 border dark:border-zinc-800/80">
@@ -685,14 +675,14 @@ export default function AdminDashboard() {
                 <label className="block text-xs font-semibold dark:text-zinc-300 mb-1">
                   Job Title <span className="text-purple-500">*</span>
                 </label>
-                <input type="text" required value={newJobTitle} onChange={(e) => setNewJobTitle(e.target.value)} placeholder="e.g. Lead Next.js Developer" className={inputClass} />
+                <input type="text" required value={newJobTitle} onChange={(e) => setNewJobTitle(e.target.value)} placeholder="e.g. Lead Next.js Developer" className={INPUT_CLASS} />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold dark:text-zinc-300 mb-1">
                   Company Name <span className="text-purple-500">*</span>
                 </label>
-                <input type="text" required value={newJobCompany} onChange={(e) => setNewJobCompany(e.target.value)} placeholder="e.g. Velocity Labs" className={inputClass} />
+                <input type="text" required value={newJobCompany} onChange={(e) => setNewJobCompany(e.target.value)} placeholder="e.g. Velocity Labs" className={INPUT_CLASS} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -701,7 +691,7 @@ export default function AdminDashboard() {
                   <select
                     value={newJobType}
                     onChange={(e) => setNewJobType(e.target.value)}
-                    className={inputClass}
+                    className={INPUT_CLASS}
                   >
                     <option value="Full-time">Full-time</option>
                     <option value="Remote">Remote</option>
@@ -712,18 +702,18 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold dark:text-zinc-300 mb-1">Location</label>
-                  <input type="text" value={newJobLocation} onChange={(e) => setNewJobLocation(e.target.value)} placeholder="e.g. Islamabad, Pakistan" className={inputClass} />
+                  <input type="text" value={newJobLocation} onChange={(e) => setNewJobLocation(e.target.value)} placeholder="e.g. Islamabad, Pakistan" className={INPUT_CLASS} />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold dark:text-zinc-300 mb-1">Compensation (Monthly)</label>
-                <input type="text" value={newJobSalary} onChange={(e) => setNewJobSalary(e.target.value)} placeholder="e.g. PKR 180,000 - 260,000" className={inputClass} />
+                <input type="text" value={newJobSalary} onChange={(e) => setNewJobSalary(e.target.value)} placeholder="e.g. PKR 180,000 - 260,000" className={INPUT_CLASS} />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold dark:text-zinc-300 mb-1">Required Skills (Comma separated)</label>
-                <input type="text" value={newJobSkills} onChange={(e) => setNewJobSkills(e.target.value)} placeholder="React, Node.js, GraphQL" className={inputClass} />
+                <input type="text" value={newJobSkills} onChange={(e) => setNewJobSkills(e.target.value)} placeholder="React, Node.js, GraphQL" className={INPUT_CLASS} />
               </div>
 
               <div>
@@ -733,7 +723,7 @@ export default function AdminDashboard() {
                   value={newJobDescription}
                   onChange={(e) => setNewJobDescription(e.target.value)}
                   placeholder="Overview of the responsibilities and tech stack..."
-                  className={inputClass}
+                  className={INPUT_CLASS}
                 />
               </div>
 

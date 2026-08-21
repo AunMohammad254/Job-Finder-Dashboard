@@ -115,6 +115,9 @@ const ParticleCard = ({
     magnetismAnimationRef.current?.kill();
 
     particlesRef.current.forEach(particle => {
+      // Stop the infinite drift/opacity tweens first; otherwise they keep
+      // ticking on the node after removeChild detaches it (a slow GSAP leak).
+      gsap.killTweensOf(particle);
       gsap.to(particle, {
         scale: 0,
         opacity: 0,
@@ -211,12 +214,19 @@ const ParticleCard = ({
       }
     };
 
-    const handleMouseMove = e => {
-      if (!enableTilt && !enableMagnetism) return;
+    // mousemove can fire several times per frame; coalesce into one rAF tick
+    // so we spawn at most one tilt/magnetism tween per frame instead of per event.
+    let moveRaf = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+
+    const applyMove = () => {
+      moveRaf = 0;
+      if (!cardRef.current) return;
 
       const rect = element.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = pointerX - rect.left;
+      const y = pointerY - rect.top;
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
@@ -244,6 +254,13 @@ const ParticleCard = ({
           ease: 'power2.out'
         });
       }
+    };
+
+    const handleMouseMove = e => {
+      if (!enableTilt && !enableMagnetism) return;
+      pointerX = e.clientX;
+      pointerY = e.clientY;
+      if (!moveRaf) moveRaf = requestAnimationFrame(applyMove);
     };
 
     const handleClick = e => {
@@ -298,6 +315,7 @@ const ParticleCard = ({
 
     return () => {
       isHoveredRef.current = false;
+      if (moveRaf) cancelAnimationFrame(moveRaf);
       element.removeEventListener('mouseenter', handleMouseEnter);
       element.removeEventListener('mouseleave', handleMouseLeave);
       element.removeEventListener('mousemove', handleMouseMove);
@@ -354,16 +372,34 @@ const GlobalSpotlight = ({
     document.body.appendChild(spotlight);
     spotlightRef.current = spotlight;
 
-    const handleMouseMove = e => {
+    // The card list is stable after mount; cache it instead of re-querying the
+    // DOM on every pointer move.
+    let cardsCache = null;
+    const getCards = () => {
+      if (!cardsCache || cardsCache.length === 0) {
+        cardsCache = gridRef.current?.querySelectorAll('.magic-bento-card') ?? [];
+      }
+      return cardsCache;
+    };
+
+    // Coalesce the (layout-reading, GSAP-driving) spotlight work into one rAF
+    // tick per frame — mousemove fires far more often than the screen refreshes,
+    // and each run measures every card and updates the spotlight.
+    let rafId = 0;
+    let lastX = 0;
+    let lastY = 0;
+
+    const processMove = () => {
+      rafId = 0;
       if (!spotlightRef.current || !gridRef.current) return;
 
       const section = gridRef.current.closest('.bento-section');
       const rect = section?.getBoundingClientRect();
       const mouseInside =
-        rect && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+        rect && lastX >= rect.left && lastX <= rect.right && lastY >= rect.top && lastY <= rect.bottom;
 
       isInsideSection.current = mouseInside || false;
-      const cards = gridRef.current.querySelectorAll('.magic-bento-card');
+      const cards = getCards();
 
       if (!mouseInside) {
         gsap.to(spotlightRef.current, {
@@ -381,12 +417,11 @@ const GlobalSpotlight = ({
       let minDistance = Infinity;
 
       cards.forEach(card => {
-        const cardElement = card;
-        const cardRect = cardElement.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
         const centerX = cardRect.left + cardRect.width / 2;
         const centerY = cardRect.top + cardRect.height / 2;
         const distance =
-          Math.hypot(e.clientX - centerX, e.clientY - centerY) - Math.max(cardRect.width, cardRect.height) / 2;
+          Math.hypot(lastX - centerX, lastY - centerY) - Math.max(cardRect.width, cardRect.height) / 2;
         const effectiveDistance = Math.max(0, distance);
 
         minDistance = Math.min(minDistance, effectiveDistance);
@@ -398,12 +433,12 @@ const GlobalSpotlight = ({
           glowIntensity = (fadeDistance - effectiveDistance) / (fadeDistance - proximity);
         }
 
-        updateCardGlowProperties(cardElement, e.clientX, e.clientY, glowIntensity, spotlightRadius);
+        updateCardGlowProperties(card, lastX, lastY, glowIntensity, spotlightRadius);
       });
 
       gsap.to(spotlightRef.current, {
-        left: e.clientX,
-        top: e.clientY,
+        left: lastX,
+        top: lastY,
         duration: 0.1,
         ease: 'power2.out'
       });
@@ -422,9 +457,15 @@ const GlobalSpotlight = ({
       });
     };
 
+    const handleMouseMove = e => {
+      lastX = e.clientX;
+      lastY = e.clientY;
+      if (!rafId) rafId = requestAnimationFrame(processMove);
+    };
+
     const handleMouseLeave = () => {
       isInsideSection.current = false;
-      gridRef.current?.querySelectorAll('.magic-bento-card').forEach(card => {
+      getCards().forEach(card => {
         card.style.setProperty('--glow-intensity', '0');
       });
       if (spotlightRef.current) {
@@ -440,6 +481,7 @@ const GlobalSpotlight = ({
     document.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseleave', handleMouseLeave);
       spotlightRef.current?.parentNode?.removeChild(spotlightRef.current);

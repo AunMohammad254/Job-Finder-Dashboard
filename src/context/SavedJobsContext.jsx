@@ -1,70 +1,71 @@
-import { createContext } from 'react';
+import { createContext, useCallback, useMemo, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useSavedJobs } from '../hooks/useSavedJobs';
-import jobs from '../data/jobs';
+import { useJobsContext } from '../hooks/useJobs';
 
 const SavedJobsContext = createContext(null);
 
 export function SavedJobsProvider({ children }) {
-  const { savedIds, isSaved, toggleSave: toggleSaveInternal, clearSaved: clearSavedInternal } = useSavedJobs();
+  // Resolve saved jobs against the LIVE jobs list (admin-added/removed jobs
+  // included), not the static seed dataset.
+  const { jobs } = useJobsContext();
+  const {
+    savedIds,
+    isSaved,
+    toggleSave: toggleSaveInternal,
+    clearSaved: clearSavedInternal
+  } = useSavedJobs();
 
-  const toggleSave = (id, options = {}) => {
+  // Keep the latest jobs/savedIds readable from a stable callback without
+  // re-creating it. This lets `toggleSave` stay referentially stable so that
+  // memo(JobCard) can skip cards whose own saved state didn't change.
+  const jobsRef = useRef(jobs);
+  jobsRef.current = jobs;
+  const savedIdsRef = useRef(savedIds);
+  savedIdsRef.current = savedIds;
+
+  const toggleSave = useCallback((id, options = {}) => {
     const stringId = String(id);
-    const currentlySaved = isSaved(stringId);
-    const job = jobs.find((j) => String(j.id) === stringId);
+    const currentlySaved = savedIdsRef.current.includes(stringId);
+    const job = jobsRef.current.find((j) => String(j.id) === stringId);
     const jobTitle = job ? job.title : 'Job';
 
     toggleSaveInternal(stringId);
 
-    if (!options.silent) {
-      if (currentlySaved) {
-        toast.error(`Removed "${jobTitle}" from saved jobs`, {
-          icon: '🗑️',
-          style: {
-            background: '#181524',
-            color: '#f3f4f6',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '12px'
-          }
-        });
-      } else {
-        toast.success(`Saved "${jobTitle}" to your list!`, {
-          icon: '❤️',
-          style: {
-            background: '#181524',
-            color: '#f3f4f6',
-            border: '1px solid rgba(132, 0, 255, 0.3)',
-            borderRadius: '12px'
-          }
-        });
-      }
+    if (options.silent) return;
+
+    if (currentlySaved) {
+      toast.error(`Removed "${jobTitle}" from saved jobs`, { icon: '🗑️' });
+    } else {
+      // Base toast style comes from the global <Toaster>; only the accent differs.
+      toast.success(`Saved "${jobTitle}" to your list!`, {
+        icon: '❤️',
+        style: { border: '1px solid rgba(132, 0, 255, 0.3)' }
+      });
     }
-  };
+  }, [toggleSaveInternal]);
 
-  const clearSaved = () => {
+  const clearSaved = useCallback(() => {
     clearSavedInternal();
-    toast('Cleared all saved jobs', {
-      icon: '✨',
-      style: {
-        background: '#181524',
-        color: '#f3f4f6',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '12px'
-      }
-    });
-  };
+    toast('Cleared all saved jobs', { icon: '✨' });
+  }, [clearSavedInternal]);
 
-  // Resolve saved job objects from the jobs dataset
-  const savedJobs = jobs.filter((job) => savedIds.includes(String(job.id)));
+  const savedJobs = useMemo(
+    () => jobs.filter((job) => savedIds.includes(String(job.id))),
+    [jobs, savedIds]
+  );
 
-  const value = {
-    savedIds,
-    savedJobs,
-    savedCount: savedIds.length,
-    isSaved,
-    toggleSave,
-    clearSaved
-  };
+  const value = useMemo(
+    () => ({
+      savedIds,
+      savedJobs,
+      savedCount: savedIds.length,
+      isSaved,
+      toggleSave,
+      clearSaved
+    }),
+    [savedIds, savedJobs, isSaved, toggleSave, clearSaved]
+  );
 
   return (
     <SavedJobsContext.Provider value={value}>
@@ -72,6 +73,5 @@ export function SavedJobsProvider({ children }) {
     </SavedJobsContext.Provider>
   );
 }
-
 
 export default SavedJobsContext;

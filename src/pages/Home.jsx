@@ -1,16 +1,21 @@
+import { lazy, Suspense, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Flame, Briefcase, Zap } from 'lucide-react';
 import { useJobsContext } from '../hooks/useJobs';
+import { useSavedJobsContext } from '../hooks/useSavedJobs';
 import Hero from '../components/Hero';
 import JobCard from '../components/JobCard';
-import { lazy, Suspense } from 'react';
 import Button from '../components/Button';
 
 const MagicBento = lazy(() => import('../components/MagicBento/MagicBento'));
 
 export default function Home() {
   const { jobs } = useJobsContext();
-  const featuredJobs = jobs.filter((job) => job.featured).slice(0, 4);
+  const { isSaved, toggleSave } = useSavedJobsContext();
+  const featuredJobs = useMemo(
+    () => jobs.filter((job) => job.featured).slice(0, 4),
+    [jobs]
+  );
 
   return (
     <div className="flex flex-col gap-16 md:gap-24 pb-16">
@@ -42,7 +47,12 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {featuredJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
+            <JobCard
+              key={job.id}
+              job={job}
+              saved={isSaved(job.id)}
+              onToggleSave={toggleSave}
+            />
           ))}
         </div>
 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Briefcase,
@@ -25,6 +25,7 @@ import Pagination from '../components/Pagination';
 import EmptyState from '../components/EmptyState';
 import { useDebounce } from '../hooks/useDebounce';
 import { useJobsContext } from '../hooks/useJobs';
+import { useSavedJobsContext } from '../hooks/useSavedJobs';
 
 const CATEGORIES = [
   { label: 'All Roles', value: '', icon: Layers },
@@ -38,24 +39,27 @@ const CATEGORIES = [
 
 const ITEMS_PER_PAGE = 6;
 
+const SORT_OPTIONS = [
+  { label: 'Featured First', value: 'featured' },
+  { label: 'Most Recent', value: 'recent' },
+  { label: 'Title: A to Z', value: 'title-asc' }
+];
+
 export default function Jobs() {
   const { jobs } = useJobsContext();
+  const { isSaved, toggleSave } = useSavedJobsContext();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Read initial values from URL query parameters if present
-  const initialSearch = searchParams.get('search') || '';
-  const initialType = searchParams.get('type') || '';
-  const initialLocation = searchParams.get('location') || '';
-  const initialCategory = searchParams.get('category') || '';
-  const initialSort = searchParams.get('sort') || 'featured';
+  // URL query params are the single source of truth for every filter — no
+  // mirrored useState and no URL→state sync effect to keep aligned.
+  const searchTerm = searchParams.get('search') || '';
+  const selectedType = searchParams.get('type') || '';
+  const selectedLocation = searchParams.get('location') || '';
+  const selectedCategory = searchParams.get('category') || '';
+  const sortBy = searchParams.get('sort') || 'featured';
 
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const [selectedType, setSelectedType] = useState(initialType);
-  const [selectedLocation, setSelectedLocation] = useState(initialLocation);
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [sortBy, setSortBy] = useState(initialSort);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,16 +68,6 @@ export default function Jobs() {
     const timer = setTimeout(() => setIsLoading(false), 300);
     return () => clearTimeout(timer);
   }, []);
-
-  // Sync state when URL params change
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSearchTerm(searchParams.get('search') || '');
-    setSelectedType(searchParams.get('type') || '');
-    setSelectedLocation(searchParams.get('location') || '');
-    setSelectedCategory(searchParams.get('category') || '');
-    setSortBy(searchParams.get('sort') || 'featured');
-  }, [searchParams]);
 
   // Extract unique filter options dynamically from dataset
   const jobTypeOptions = useMemo(() => {
@@ -84,59 +78,37 @@ export default function Jobs() {
     return Array.from(new Set(jobs.map((j) => j.location))).filter(Boolean);
   }, [jobs]);
 
-  const sortOptions = [
-    { label: 'Featured First', value: 'featured' },
-    { label: 'Most Recent', value: 'recent' },
-    { label: 'Title: A to Z', value: 'title-asc' }
-  ];
+  // Patch the URL query string; a falsy value removes its key.
+  const setParams = useCallback(
+    (patch) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          for (const [key, value] of Object.entries(patch)) {
+            if (value) next.set(key, value);
+            else next.delete(key);
+          }
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
 
-  // Update URL search parameters when filters change
-  const updateParams = (newSearch, newType, newLoc, newCat, newSort) => {
-    const params = {};
-    if (newSearch) params.search = newSearch;
-    if (newType) params.type = newType;
-    if (newLoc) params.location = newLoc;
-    if (newCat) params.category = newCat;
-    if (newSort && newSort !== 'featured') params.sort = newSort;
-    setSearchParams(params, { replace: true });
-  };
+  const handleSearchChange = useCallback((e) => setParams({ search: e.target.value }), [setParams]);
+  const handleTypeChange = useCallback((val) => setParams({ type: val }), [setParams]);
+  const handleLocationChange = useCallback((val) => setParams({ location: val }), [setParams]);
+  const handleCategoryClick = useCallback((catVal) => setParams({ category: catVal }), [setParams]);
+  const handleSortChange = useCallback(
+    (val) => setParams({ sort: val && val !== 'featured' ? val : '' }),
+    [setParams]
+  );
 
-  const handleSearchChange = (e) => {
-    const val = e.target.value;
-    setSearchTerm(val);
-    updateParams(val, selectedType, selectedLocation, selectedCategory, sortBy);
-  };
-
-  const handleTypeChange = (val) => {
-    setSelectedType(val);
-    updateParams(searchTerm, val, selectedLocation, selectedCategory, sortBy);
-  };
-
-  const handleLocationChange = (val) => {
-    setSelectedLocation(val);
-    updateParams(searchTerm, selectedType, val, selectedCategory, sortBy);
-  };
-
-  const handleCategoryClick = (catVal) => {
-    setSelectedCategory(catVal);
-    updateParams(searchTerm, selectedType, selectedLocation, catVal, sortBy);
-  };
-
-  const handleSortChange = (val) => {
-    const sortVal = val || 'featured';
-    setSortBy(sortVal);
-    updateParams(searchTerm, selectedType, selectedLocation, selectedCategory, sortVal);
-  };
-
-  const handleResetFilters = () => {
-    setSearchTerm('');
-    setSelectedType('');
-    setSelectedLocation('');
-    setSelectedCategory('');
-    setSortBy('featured');
+  const handleResetFilters = useCallback(() => {
     setCurrentPage(1);
     setSearchParams({}, { replace: true });
-  };
+  }, [setSearchParams]);
 
   const hasActiveFilters = Boolean(
     searchTerm || selectedType || selectedLocation || selectedCategory || (sortBy && sortBy !== 'featured')
@@ -298,7 +270,7 @@ export default function Jobs() {
             <Dropdown
               label="Sort By"
               icon={ArrowUpDown}
-              options={sortOptions}
+              options={SORT_OPTIONS}
               value={sortBy}
               onChange={handleSortChange}
               allLabel="Featured First"
@@ -359,7 +331,12 @@ export default function Jobs() {
         <>
           <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard
+                key={job.id}
+                job={job}
+                saved={isSaved(job.id)}
+                onToggleSave={toggleSave}
+              />
             ))}
           </div>
 

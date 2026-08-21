@@ -92,9 +92,12 @@ const SpecularButton = ({
   const btnRef = useRef(null);
   const fxRef = useRef(null);
   const propsRef = useRef({});
+  const wakeRef = useRef(null);
 
   useEffect(() => {
     propsRef.current = { radius, lineColor, baseColor, intensity, shineSize, shineFade, thickness, speed, followMouse, proximity, autoAnimate };
+    // If auto-animation was just enabled, make sure a parked loop resumes.
+    if (autoAnimate) wakeRef.current?.();
   });
 
   useEffect(() => {
@@ -135,6 +138,28 @@ const SpecularButton = ({
     const mesh = new Mesh(gl, { geometry, program });
     fx.appendChild(gl.canvas);
 
+    const reduceMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+    let angle = 2.4;
+    let idleAngle = 2.4;
+    let bright = 0;
+
+    const lineC = new Color();
+    const baseC = new Color();
+
+    // Light angle steers toward the pointer (anywhere on the page) and falls
+    // back to a slow sweep when the pointer hasn't moved yet.
+    let pointerAngle = null;
+    let proximityT = 0;
+    let last = performance.now();
+    let raf = 0;
+    let running = false;
+    let visible = true;
+
+    // Below this delta, further frames are visually identical → park the loop.
+    const EPS = 0.002;
+
     const sizeRef = { w: 1, h: 1 };
     const resize = () => {
       // Fractional size + explicit center keep the SDF pinned to the exact
@@ -148,14 +173,70 @@ const SpecularButton = ({
       program.uniforms.uCenter.value = [(PAD + w / 2) * dpr, (PAD + h / 2) * dpr];
       program.uniforms.uHalfSize.value = [(w / 2) * dpr, (h / 2) * dpr];
     };
-    const ro = new ResizeObserver(resize);
+
+    // Push the current physics state to the GPU and draw exactly one frame.
+    const draw = () => {
+      const p = propsRef.current;
+      lineC.set(p.lineColor);
+      baseC.set(p.baseColor);
+      program.uniforms.uAngle.value = angle;
+      program.uniforms.uRadius.value = Math.min(p.radius, Math.min(sizeRef.w, sizeRef.h) / 2) * dpr;
+      program.uniforms.uLineColor.value = [lineC.r, lineC.g, lineC.b];
+      program.uniforms.uBaseColor.value = [baseC.r, baseC.g, baseC.b];
+      program.uniforms.uIntensity.value = p.intensity * bright;
+      program.uniforms.uShineSize.value = (p.shineSize * Math.PI) / 180;
+      program.uniforms.uShineFade.value = (p.shineFade * Math.PI) / 180;
+      program.uniforms.uThickness.value = p.thickness * dpr;
+      renderer.render({ scene: mesh });
+    };
+
+    const ro = new ResizeObserver(() => {
+      resize();
+      // Keep the still frame accurate while the loop is parked.
+      if (!running) draw();
+    });
     ro.observe(btn);
     resize();
 
-    // Light angle steers toward the pointer (anywhere on the page) and falls
-    // back to a slow sweep when the pointer hasn't moved yet.
-    let pointerAngle = null;
-    let proximityT = 0;
+    const update = now => {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      const p = propsRef.current;
+
+      idleAngle += p.speed * dt;
+      const steer = p.followMouse && pointerAngle != null && (!p.autoAnimate || proximityT > 0);
+      const target = steer ? pointerAngle : idleAngle;
+      const diff = ((target - angle + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+      angle += diff * (1 - Math.exp(-dt * 7));
+
+      // Shine fades in with pointer proximity unless autoAnimate keeps it on
+      const brightTarget = p.autoAnimate ? 1 : proximityT;
+      bright += (brightTarget - bright) * (1 - Math.exp(-dt * 8));
+
+      draw();
+
+      // Idle (shine faded) or converged onto a resting pointer, with nothing
+      // auto-animating → the next frame would be identical. Park until a
+      // pointer move / resize wakes us, instead of spinning rAF forever.
+      const steadyBright = Math.abs(brightTarget - bright) < EPS;
+      const steadyAngle = !steer || Math.abs(diff) < 0.0008;
+      const settled = !p.autoAnimate && steadyBright && (bright < EPS || steadyAngle);
+      if (settled) {
+        running = false;
+        raf = 0;
+      } else {
+        raf = requestAnimationFrame(update);
+      }
+    };
+
+    const start = () => {
+      if (running || reduceMotion || !visible) return;
+      running = true;
+      last = performance.now();
+      raf = requestAnimationFrame(update);
+    };
+    wakeRef.current = start;
+
     const onPointerMove = e => {
       const rect = btn.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
@@ -174,52 +255,40 @@ const SpecularButton = ({
       }
       const t = Math.max(0, 1 - dist / Math.max(propsRef.current.proximity, 1));
       proximityT = t * t * (3 - 2 * t);
+      // A pointer coming within range wakes a parked loop.
+      if (proximityT > EPS) start();
     };
     window.addEventListener('pointermove', onPointerMove);
 
-    let angle = 2.4;
-    let idleAngle = 2.4;
-    let bright = 0;
-    let last = performance.now();
-    let raf = 0;
+    // Only animate while on-screen; an off-screen button otherwise burns a full
+    // rAF + WebGL draw every frame for pixels nobody can see.
+    const io = new IntersectionObserver(entries => {
+      visible = entries[0]?.isIntersecting ?? true;
+      if (visible) {
+        if (reduceMotion) draw();
+        else start();
+      } else if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+        running = false;
+      }
+    });
+    io.observe(btn);
 
-    const lineC = new Color();
-    const baseC = new Color();
-
-    const update = now => {
-      raf = requestAnimationFrame(update);
-      const dt = Math.min((now - last) / 1000, 0.05);
-      last = now;
-      const p = propsRef.current;
-
-      idleAngle += p.speed * dt;
-      const steer = p.followMouse && pointerAngle != null && (!p.autoAnimate || proximityT > 0);
-      const target = steer ? pointerAngle : idleAngle;
-      const diff = ((target - angle + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
-      angle += diff * (1 - Math.exp(-dt * 7));
-
-      // Shine fades in with pointer proximity unless autoAnimate keeps it on
-      const brightTarget = p.autoAnimate ? 1 : proximityT;
-      bright += (brightTarget - bright) * (1 - Math.exp(-dt * 8));
-
-      lineC.set(p.lineColor);
-      baseC.set(p.baseColor);
-      program.uniforms.uAngle.value = angle;
-      program.uniforms.uRadius.value = Math.min(p.radius, Math.min(sizeRef.w, sizeRef.h) / 2) * dpr;
-      program.uniforms.uLineColor.value = [lineC.r, lineC.g, lineC.b];
-      program.uniforms.uBaseColor.value = [baseC.r, baseC.g, baseC.b];
-      program.uniforms.uIntensity.value = p.intensity * bright;
-      program.uniforms.uShineSize.value = (p.shineSize * Math.PI) / 180;
-      program.uniforms.uShineFade.value = (p.shineFade * Math.PI) / 180;
-      program.uniforms.uThickness.value = p.thickness * dpr;
-      renderer.render({ scene: mesh });
-    };
-    raf = requestAnimationFrame(update);
+    if (reduceMotion) {
+      // Honor prefers-reduced-motion: draw a single settled frame, never loop.
+      bright = propsRef.current.autoAnimate ? 1 : 0;
+      draw();
+    } else {
+      start();
+    }
 
     return () => {
-      cancelAnimationFrame(raf);
+      if (raf) cancelAnimationFrame(raf);
+      io.disconnect();
       ro.disconnect();
       window.removeEventListener('pointermove', onPointerMove);
+      wakeRef.current = null;
       if (gl.canvas.parentNode === fx) fx.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };

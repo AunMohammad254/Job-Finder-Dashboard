@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { JobsProvider } from './context/JobsContext';
@@ -8,11 +9,25 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Jobs from './pages/Jobs';
-import JobDetails from './pages/JobDetails';
-import SavedJobs from './pages/SavedJobs';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminAuthPreview from './pages/AdminAuthPreview';
-import NotFound from './pages/NotFound';
+
+// Route-level code splitting: the two primary public pages (Home, Jobs) stay in
+// the main bundle for instant first navigation; the detail, saved, admin, and
+// fallback routes load on demand so their code — notably the large admin
+// dashboard — stays out of the initial download.
+const JobDetails = lazy(() => import('./pages/JobDetails'));
+const SavedJobs = lazy(() => import('./pages/SavedJobs'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminAuthPreview = lazy(() => import('./pages/AdminAuthPreview'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+
+function RouteFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]" role="status" aria-live="polite">
+      <span className="h-8 w-8 rounded-full border-2 border-purple-500/30 border-t-purple-500 animate-spin" />
+      <span className="sr-only">Loading…</span>
+    </div>
+  );
+}
 
 export default function App() {
   return (
@@ -43,15 +58,17 @@ export default function App() {
 
                 {/* Main App Content Body */}
                 <main className="flex-1">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/jobs" element={<Jobs />} />
-                    <Route path="/jobs/:id" element={<JobDetails />} />
-                    <Route path="/saved" element={<SavedJobs />} />
-                    <Route path="/admin-dashboard" element={<AdminAuthPreview />} />
-                    <Route path="/admin-dashboard/manage" element={<AdminDashboard />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  <Suspense fallback={<RouteFallback />}>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/jobs" element={<Jobs />} />
+                      <Route path="/jobs/:id" element={<JobDetails />} />
+                      <Route path="/saved" element={<SavedJobs />} />
+                      <Route path="/admin-dashboard" element={<AdminAuthPreview />} />
+                      <Route path="/admin-dashboard/manage" element={<AdminDashboard />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
                 </main>
 
                 {/* Platform Footer */}

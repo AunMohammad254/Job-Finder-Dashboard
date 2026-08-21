@@ -1,46 +1,14 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useCallback, useContext } from 'react';
+import { useLocalStorage } from './useLocalStorage';
 import initialJobs from '../data/jobs';
 import JobsContext from '../context/JobsContext';
 
 const JOBS_STORAGE_KEY = 'jobfinder:jobsList';
 
 export function useJobs() {
-  const [jobs, setJobs] = useState(() => {
-    try {
-      const stored = localStorage.getItem(JOBS_STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-      localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(initialJobs));
-      return initialJobs;
-    } catch {
-      return initialJobs;
-    }
+  const [jobs, setJobs] = useLocalStorage(JOBS_STORAGE_KEY, initialJobs, {
+    validate: Array.isArray
   });
-
-  // Effect 1: persist to localStorage whenever state changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(JOBS_STORAGE_KEY, JSON.stringify(jobs));
-    } catch (err) {
-      console.warn('Failed to save jobs to LocalStorage', err);
-    }
-  }, [jobs]);
-
-  // Effect 2: set up the cross-tab storage listener once
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === JOBS_STORAGE_KEY && e.newValue) {
-        try {
-          setJobs(JSON.parse(e.newValue));
-        } catch (err) {
-          console.warn('Error parsing storage event for jobs', err);
-        }
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
 
   const addJob = useCallback((jobData) => {
     const newJob = {
@@ -54,25 +22,18 @@ export function useJobs() {
     };
     setJobs((prev) => [newJob, ...prev]);
     return newJob;
-  }, []);
+  }, [setJobs]);
 
   const deleteJob = useCallback((jobId) => {
     setJobs((prev) => prev.filter((j) => String(j.id) !== String(jobId)));
-  }, []);
+  }, [setJobs]);
 
   const getJobById = useCallback(
-    (jobId) => {
-      return jobs.find((j) => String(j.id) === String(jobId));
-    },
+    (jobId) => jobs.find((j) => String(j.id) === String(jobId)),
     [jobs]
   );
 
-  return {
-    jobs,
-    addJob,
-    deleteJob,
-    getJobById
-  };
+  return { jobs, addJob, deleteJob, getJobById };
 }
 
 export function useJobsContext() {

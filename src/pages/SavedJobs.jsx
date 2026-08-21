@@ -7,8 +7,14 @@ import Dropdown from '../components/Dropdown';
 import EmptyState from '../components/EmptyState';
 import Button from '../components/Button';
 
+const SORT_OPTIONS = [
+  { label: 'Recently Added', value: 'recent' },
+  { label: 'Title: A to Z', value: 'title-asc' },
+  { label: 'Company: A to Z', value: 'company-asc' }
+];
+
 export default function SavedJobs() {
-  const { savedJobs, savedCount, clearSaved } = useSavedJobsContext();
+  const { savedJobs, savedCount, clearSaved, isSaved, toggleSave } = useSavedJobsContext();
   const [selectedType, setSelectedType] = useState('');
   const [sortBy, setSortBy] = useState('recent');
 
@@ -16,12 +22,6 @@ export default function SavedJobs() {
   const savedTypeOptions = useMemo(() => {
     return Array.from(new Set(savedJobs.map((j) => j.jobType))).filter(Boolean);
   }, [savedJobs]);
-
-  const sortOptions = [
-    { label: 'Recently Added', value: 'recent' },
-    { label: 'Title: A to Z', value: 'title-asc' },
-    { label: 'Company: A to Z', value: 'company-asc' }
-  ];
 
   // Filter & Sort
   const displayedSavedJobs = useMemo(() => {
@@ -86,7 +86,7 @@ export default function SavedJobs() {
               />
             )}
             <Dropdown
-              options={sortOptions}
+              options={SORT_OPTIONS}
               value={sortBy}
               onChange={(val) => setSortBy(val || 'recent')}
               allLabel="Recently Added"
@@ -113,7 +113,12 @@ export default function SavedJobs() {
         displayedSavedJobs.length > 0 ? (
           <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayedSavedJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard
+                key={job.id}
+                job={job}
+                saved={isSaved(job.id)}
+                onToggleSave={toggleSave}
+              />
             ))}
           </div>
         ) : (

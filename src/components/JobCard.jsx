@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MapPin, DollarSign, Calendar, ArrowRight } from 'lucide-react';
-import { useSavedJobsContext } from '../hooks/useSavedJobs';
+import { getInitials } from '../lib/utils';
 import Button from './Button';
 
 const jobTypeColors = {
@@ -11,19 +12,7 @@ const jobTypeColors = {
   'Contract': 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30'
 };
 
-export default function JobCard({ job }) {
-  const { isSaved, toggleSave } = useSavedJobsContext();
-  const saved = isSaved(job.id);
-
-  const getInitials = (name) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  };
-
+function JobCard({ job, saved = false, onToggleSave }) {
   return (
     <div className="group relative flex flex-col justify-between bg-white dark:bg-zinc-900/70 hover:bg-slate-50 dark:hover:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800/80 hover:border-purple-400/50 dark:hover:border-purple-500/40 rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:shadow-xl hover:shadow-purple-100/80 dark:hover:shadow-purple-950/20 hover:-translate-y-1 backdrop-blur-sm shadow-sm dark:shadow-none">
       {/* Top Header */}
@@ -58,7 +47,7 @@ export default function JobCard({ job }) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              toggleSave(job.id);
+              onToggleSave?.(job.id);
             }}
             aria-label={saved ? `Unsave ${job.title}` : `Save ${job.title}`}
             className={`p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
@@ -133,3 +122,5 @@ export default function JobCard({ job }) {
     </div>
   );
 }
+
+export default memo(JobCard);

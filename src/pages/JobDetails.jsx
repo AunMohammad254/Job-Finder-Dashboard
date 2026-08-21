@@ -22,9 +22,8 @@ import Button from '../components/Button';
 import Dropdown from '../components/Dropdown';
 import JobCard from '../components/JobCard';
 import EmptyState from '../components/EmptyState';
-
-const inputClass =
-  'w-full px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-purple-500 transition-colors';
+import { getInitials } from '../lib/utils';
+import { EXPERIENCE_LEVELS, INPUT_CLASS } from '../lib/constants';
 
 export default function JobDetails() {
   const { id } = useParams();
@@ -55,9 +54,6 @@ export default function JobDetails() {
   }
 
   const saved = isSaved(job.id);
-
-  const getInitials = (name) =>
-    name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
 
   const handleShare = () => {
     navigator.clipboard?.writeText(window.location.href);
@@ -317,7 +313,12 @@ export default function JobDetails() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {relatedJobs.map((relJob) => (
-              <JobCard key={relJob.id} job={relJob} />
+              <JobCard
+                key={relJob.id}
+                job={relJob}
+                saved={isSaved(relJob.id)}
+                onToggleSave={toggleSave}
+              />
             ))}
           </div>
         </div>
@@ -351,32 +352,27 @@ export default function JobDetails() {
                 <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5">
                   Full Name <span className="text-purple-500">*</span>
                 </label>
-                <input type="text" required value={applicantName} onChange={(e) => setApplicantName(e.target.value)} placeholder="e.g. Aun Abbas" className={inputClass} />
+                <input type="text" required value={applicantName} onChange={(e) => setApplicantName(e.target.value)} placeholder="e.g. Aun Abbas" className={INPUT_CLASS} />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5">
                   Email Address <span className="text-purple-500">*</span>
                 </label>
-                <input type="email" required value={applicantEmail} onChange={(e) => setApplicantEmail(e.target.value)} placeholder="e.g. aun@example.com" className={inputClass} />
+                <input type="email" required value={applicantEmail} onChange={(e) => setApplicantEmail(e.target.value)} placeholder="e.g. aun@example.com" className={INPUT_CLASS} />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-1.5">
                   Portfolio / GitHub / LinkedIn URL
                 </label>
-                <input type="url" value={applicantResume} onChange={(e) => setApplicantResume(e.target.value)} placeholder="https://github.com/yourhandle" className={inputClass} />
+                <input type="url" value={applicantResume} onChange={(e) => setApplicantResume(e.target.value)} placeholder="https://github.com/yourhandle" className={INPUT_CLASS} />
               </div>
 
               <div>
                 <Dropdown
                   label="Experience Level"
-                  options={[
-                    'Fresher / Entry-Level (0-1 Year)',
-                    'Junior to Mid-Level (1-3 Years)',
-                    'Senior Engineer (3-5+ Years)',
-                    'Lead / Staff (6+ Years)'
-                  ]}
+                  options={EXPERIENCE_LEVELS}
                   value={experienceLevel}
                   onChange={setExperienceLevel}
                   allLabel="Select Experience Level"

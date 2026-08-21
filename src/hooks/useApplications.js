@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useCallback, useContext } from 'react';
+import { useLocalStorage } from './useLocalStorage';
 import ApplicationsContext from '../context/ApplicationsContext';
 
 const STORAGE_KEY = 'jobfinder:applications';
@@ -72,43 +73,9 @@ const INITIAL_APPLICATIONS = [
 ];
 
 export function useApplications() {
-  const [applications, setApplications] = useState(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        return JSON.parse(raw);
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_APPLICATIONS));
-      return INITIAL_APPLICATIONS;
-    } catch {
-      return INITIAL_APPLICATIONS;
-    }
+  const [applications, setApplications] = useLocalStorage(STORAGE_KEY, INITIAL_APPLICATIONS, {
+    validate: Array.isArray
   });
-
-  // Effect 1: persist to localStorage whenever state changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
-    } catch (err) {
-      console.warn('Failed to save applications to LocalStorage', err);
-    }
-  }, [applications]);
-
-  // Effect 2: set up the cross-tab storage listener once
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === STORAGE_KEY && e.newValue) {
-        try {
-          setApplications(JSON.parse(e.newValue));
-        } catch (err) {
-          console.warn('Error parsing storage event for applications', err);
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   const addApplication = useCallback((newApp) => {
     const appWithId = {
@@ -119,22 +86,20 @@ export function useApplications() {
     };
     setApplications((prev) => [appWithId, ...prev]);
     return appWithId;
-  }, []);
+  }, [setApplications]);
 
   const updateApplicationStatus = useCallback((appId, newStatus) => {
     setApplications((prev) =>
       prev.map((app) => (app.id === appId ? { ...app, status: newStatus } : app))
     );
-  }, []);
+  }, [setApplications]);
 
   const deleteApplication = useCallback((appId) => {
     setApplications((prev) => prev.filter((app) => app.id !== appId));
-  }, []);
+  }, [setApplications]);
 
   const getApplicationsByJobId = useCallback(
-    (jobId) => {
-      return applications.filter((app) => String(app.jobId) === String(jobId));
-    },
+    (jobId) => applications.filter((app) => String(app.jobId) === String(jobId)),
     [applications]
   );
 
